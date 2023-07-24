@@ -1,5 +1,73 @@
 // Actions, orders and constructions on standard (skew) Young tableaux
 
+
+// ACTIONS
+
+// Perform jdt and record the vacated cell.
+JeuDeTaquinCell := function(T, i, j)
+    shT := Shape(T);
+    R := JeuDeTaquin(T, i, j);
+    shR := Shape(R) cat [0];
+    // Row with difference between Shape(R) and Shape(T)
+    row := Index([shT[x] - shR[x] : x in [1 .. #shT]], 1);
+    return R, row, shT[row];
+end function;
+
+// Perform inverse jdt and record the vacated cell.
+InverseJeuDeTaquinCell := function(T, i, j)
+    skT := SkewShape(T) cat [0];
+    R := InverseJeuDeTaquin(T, i, j);
+    skR := SkewShape(R);
+    // Row with difference between SkewShape(R) and SkewShape(T)
+    row := Index([skR[x] - skT[x] : x in [1 .. #skR]], 1);
+    return R, row, skR[row];
+end function;
+
+// Rectify T and record the path of removed cells
+RectifyPath := function(T);
+    R := T;
+    vacrows := [];
+    vaccols := [];
+    while IsSkew(R) do
+        // Find largest possible cell to slide into
+        i := Max([x : x in [1..#SkewShape(R)] | SkewShape(R)[x] gt 0]);
+        j := SkewShape(R)[i];
+        R, r, c := JeuDeTaquinCell(R, i, j);
+        Append(~vacrows, r);
+        Append(~vaccols, c);
+    end while;
+    return R, vacrows, vaccols;
+end function;
+
+// Unrectify T along a path of outside cells
+InverseRectifyPath := function(T, rows, cols);
+    assert #rows eq #cols;
+    R := T;
+    for j in [1..#rows] do
+        R := InverseJeuDeTaquin(R, rows[j], cols[j]);
+    end for;
+    return R;
+end function;
+
+// Evacuate a standard tableau by rotating and rectifying
+Evacuate := function(T);
+    assert IsStandard(T) and not IsSkew(T);
+    r := Shape(T)[1];
+    padding := Reverse([r - Shape(T)[i] : i in [1..#Shape(T)]]);
+    rows := [Eltseq(x) : x in Rows(T)];
+    X := Tableau(padding, Reverse([Reverse([Weight(T) - y + 1 : y in x]) : x in rows]));
+    return Rectify(X);
+end function;
+
+// Evacuate a skew tableaux preserving dual equivalence, also called reversal
+SkewEvacuate := function(T);
+    assert IsStandard(T);
+    X, vr, vc := RectifyPath(T);
+    return InverseRectifyPath(Evacuate(X),Reverse(vr),Reverse(vc));
+end function;
+
+
+
     //---CONSTRUCTION---//
 
 // 1 .. n placed row-by-row into a Young tableau
