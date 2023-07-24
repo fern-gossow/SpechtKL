@@ -1,4 +1,4 @@
-// Actions, orders and constructions on Young and skew tableaux
+// Actions, orders and constructions on standard (skew) Young tableaux
 
     //---CONSTRUCTION---//
 
