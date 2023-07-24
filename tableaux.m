@@ -49,21 +49,68 @@ InverseRectifyPath := function(T, rows, cols);
     return R;
 end function;
 
-// Evacuate a standard tableau by rotating and rectifying
-Evacuate := function(T);
-    assert IsStandard(T) and not IsSkew(T);
+// Evacuate a nonskew tableau by rotating and rectifying
+Evacuate := function(T : n := Weight(T));
+    assert not IsSkew(T);
     r := Shape(T)[1];
     padding := Reverse([r - Shape(T)[i] : i in [1..#Shape(T)]]);
     rows := [Eltseq(x) : x in Rows(T)];
-    X := Tableau(padding, Reverse([Reverse([Weight(T) - y + 1 : y in x]) : x in rows]));
+    X := Tableau(padding, Reverse([Reverse([n - y + 1 : y in x]) : x in rows]));
     return Rectify(X);
 end function;
 
 // Evacuate a skew tableaux preserving dual equivalence, also called reversal
-SkewEvacuate := function(T);
+SkewEvacuate := function(T : n := Weight(T));
     assert IsStandard(T);
     X, vr, vc := RectifyPath(T);
-    return InverseRectifyPath(Evacuate(X),Reverse(vr),Reverse(vc));
+    return InverseRectifyPath(Evacuate(X : n := n),Reverse(vr),Reverse(vc));
+end function;
+
+// Create a skew tableau by restricting T to the values between a and b
+RestrictTableau := function(T,a,b);
+    assert 1 le a and a le b and b le Weight(T);
+    rows := [Eltseq(x) : x in Rows(T)];
+    // Find skew shape of new tableaux
+    sk := [SkewShape(T)[x] + #[y : y in rows[x] | y lt a] : x in [1..#rows]];
+    for j in [1..#rows] do
+        rows[j] := [x-a+1 : x in rows[j] | x ge a and x le b];
+    end for;
+    return Tableau(sk, rows);
+end function;
+
+// Compose the two skew tableaux
+ComposeTableau := function (P, Q : n := Weight(P))
+    assert [x : x in SkewShape(Q) | x gt 0] eq Shape(P);
+    rowsP := Eltseq(P);
+    rowsQ := [[x + n : x in row] : row in Eltseq(Q)];
+    elts := [rowsP[r] cat rowsQ[r] : r in [1..#rowsP]] cat rowsQ[#rowsP+1..#rowsQ];
+    return Tableau(SkewShape(P), elts);
+end function;
+
+// Compose list of tableaux
+ComposeTableaux := function(tablist)
+    assert #tablist ge 1;
+    T := tablist[1];
+    for X in tablist[2 .. #tablist] do
+        T := TabCompose( T, X );
+    end for;
+    return T;
+end function;
+
+// Write tableau as a list of skew tableaux given by alpha
+DecomposeTableau := function(T, comp)
+    assert &+comp eq Weight(T);
+    comp := [0] cat comp;
+    return [TabRestrict(T, &+comp[1..i]+1, &+comp[1..i+1]) : i in [1 .. #comp-1]];
+end function;
+
+// Cactus group action indexed by the interval I = [a,b]
+CactusInvolution := function(T, a, b)
+    assert 1 le a and a le b and b le Weight(T);
+    decomp := TabDecompose( T, [a-1, b-a+1, Weight(T)-b]);
+    // Evacuate the middle component
+    decomp[2] := SkewEvacuate(decomp[2] : n := b-a+1);
+    return ComposeTableaux(decomp);
 end function;
 
 
