@@ -1,44 +1,49 @@
 // Package for the type SSYT including cactus actions etc.
 
-// Attach("C:/Users/Martin/Coding/Github/SpechtKL/sst.m");
+// Attach("C:/Users/**/Coding/Github/SpechtKL/sst.m");
 
 declare type SSTab;
 
 declare attributes SSTab: Tab, Weight;
 
+// Initialisation and basic attributes
+intrinsic SST(T::Tbl, n::RngIntElt) -> SSTab
+{Create a semistandard tableau with designated weight}
+    require Parent(T) eq TableauIntegerMonoid(): "Tableau must be over the positive integers";
+    elts := &cat(Eltseq(T));
+    require Max(elts) le n: "Weight must be more than maximum value";
+    require n le #elts: "Weight must be less than number of boxes";
+    X := New(SSTab);
+    X`Tab := T;
+    X`Weight := n;
+    return X;
+end intrinsic;
+
+intrinsic SST(T::Tbl) -> SSTab
+{Create a semistandard tableau with designated weight}
+    return SST(T,Weight(T));
+end intrinsic;
+
 intrinsic SST(elts::SeqEnum[SeqEnum[RngIntElt]], n::RngIntElt) -> SSTab
 {Create a SST with prescribed weight}
-    nzelts := [x : x in &cat(elts) | x gt 0];
-    require Max(nzelts) le n: "Weight must be more than maximum value";
-    require n le #nzelts: "Weight must be less than number of boxes";
-    
-    T := New(SSTab);
-    T`Tab := Tableau(elts);
-    T`Weight := n;
-    return T;
+    return SST(Tableau(elts), n);
 end intrinsic;
 
 intrinsic SST(elts::SeqEnum[SeqEnum[RngIntElt]]) -> SSTab
 {Create a SST with weight = number of boxes}
-    nzelts := [x : x in &cat(elts) | x gt 0];
-    return SST(elts, #nzelts);
+    T := Tableau(elts);
+    return SST(T, Weight(T));
 end intrinsic;
 
 intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]], n::RngIntElt) -> SSTab
 {Create a SST with prescribed weight given its skew shape}
-    nzelts := &cat(elts);
-    require Max(nzelts) le n: "Weight must be more than maximum value";
-    require n le #nzelts: "Weight must be less than number of boxes";
-    
-    T := New(SSTab);
-    T`Tab := Tableau(skew, elts);
-    T`Weight := n;
-    return T;
+    return SST(Tableau(skew, elts), n);
 end intrinsic;
 
 intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]]) -> SSTab
 {Create a SST given its skew shape with weight = number of boxes}
-    return SST(skew, elts, #elts);
+    T := Tableau(skew, elts);
+    return SST(T, Weight(T));
 end intrinsic;
 
 intrinsic Print(T::SSTab)
@@ -56,7 +61,14 @@ intrinsic '+'(P::SSTab, Q::SSTab) -> SSTab
 end intrinsic;
 
 intrinsic Weight(T::SSTab) -> RngIntElt
-{Return the weight of the tableaux}
+{Return the weight of T}
     return T`Weight;
 end intrinsic;
+
+intrinsic Shape(T::SSTab) -> SeqEnum[RngIntElt]
+{Return the shape of T}
+    return T`Shape;
+end intrinsic;
+
+// Actions on SST
 
