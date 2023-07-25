@@ -4,46 +4,46 @@
 
 declare type SSTab;
 
-declare attributes SSTab: Tab, Weight;
+declare attributes SSTab: Tab, Range;
 
 // INITIALISATION
 
 intrinsic SST(T::Tbl, n::RngIntElt) -> SSTab
-{Create a semistandard tableau with designated weight}
+{Create a semistandard tableau with designated range}
     require Parent(T) eq TableauIntegerMonoid(): "Tableau must be over the positive integers";
     elts := &cat(Eltseq(T));
-    require Max(elts cat [0]) le n: "Weight must be more than maximum value";
+    require Max(elts cat [0]) le n: "Range must be more than maximum value";
     X := New(SSTab);
     X`Tab := T;
-    X`Weight := n;
+    X`Range := n;
     return X;
 end intrinsic;
 
 intrinsic SST(T::Tbl) -> SSTab
-{Create a semistandard tableau with designated weight}
-    return SST(T,Weight(T));
+{Create a semistandard tableau with designated range}
+    return SST(T,Range(T));
 end intrinsic;
 
 intrinsic SST(elts::SeqEnum[SeqEnum[RngIntElt]], n::RngIntElt) -> SSTab
-{Create a SST with prescribed weight}
+{Create a SST with prescribed range}
     return SST(Tableau(elts), n);
 end intrinsic;
 
 intrinsic SST(elts::SeqEnum[SeqEnum[RngIntElt]]) -> SSTab
-{Create a SST with weight = number of boxes}
+{Create a SST with range = number of boxes}
     T := Tableau(elts);
-    return SST(T, Weight(T));
+    return SST(T, Range(T));
 end intrinsic;
 
 intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]], n::RngIntElt) -> SSTab
-{Create a SST with prescribed weight given its skew shape}
+{Create a SST with prescribed range given its skew shape}
     return SST(Tableau(skew, elts), n);
 end intrinsic;
 
 intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]]) -> SSTab
-{Create a SST given its skew shape with weight = number of boxes}
+{Create a SST given its skew shape with range = number of boxes}
     T := Tableau(skew, elts);
-    return SST(T, Weight(T));
+    return SST(T, Range(T));
 end intrinsic;
 
 // BASIC ATTRIBUTES
@@ -57,14 +57,14 @@ intrinsic '+'(P::SSTab, Q::SSTab) -> SSTab
 {Compose two skew tableaux by joining them together}
     require [x : x in SkewShape(Q`Tab) | x gt 0] eq Shape(P`Tab): "Skew shapes must match";
     rowsP := Eltseq(P`Tab);
-    rowsQ := [[x + P`Weight : x in row] : row in Eltseq(Q`Tab)];
+    rowsQ := [[x + P`Range : x in row] : row in Eltseq(Q`Tab)];
     elts := [rowsP[r] cat rowsQ[r] : r in [1..#rowsP]] cat rowsQ[#rowsP+1..#rowsQ];
-    return SST(SkewShape(P`Tab), elts, P`Weight+Q`Weight);
+    return SST(SkewShape(P`Tab), elts, P`Range+Q`Range);
 end intrinsic;
 
-intrinsic Weight(T::SSTab) -> RngIntElt
-{Return the weight of T}
-    return T`Weight;
+intrinsic Range(T::SSTab) -> RngIntElt
+{Return the range of T}
+    return T`Range;
 end intrinsic;
 
 intrinsic Shape(T::SSTab) -> SeqEnum[RngIntElt]
@@ -96,7 +96,7 @@ intrinsic JeuDeTaquin(T::SSTab, i::RngIntElt, j::RngIntElt) -> SSTab, RngIntElt,
     shR := Shape(R) cat [0];
     // Row with difference between Shape(R) and Shape(T)
     row := Index([shT[x] - shR[x] : x in [1 .. #shT]], 1);
-    return SST(R,T`Weight), row, shT[row];
+    return SST(R,T`Range), row, shT[row];
 end intrinsic;
 
 intrinsic InverseJeuDeTaquin(T::SSTab, i::RngIntElt, j::RngIntElt) -> SSTab, RngIntElt, RngIntElt
@@ -106,7 +106,7 @@ intrinsic InverseJeuDeTaquin(T::SSTab, i::RngIntElt, j::RngIntElt) -> SSTab, Rng
     skR := SkewShape(R);
     // Row with difference between SkewShape(R) and SkewShape(T)
     row := Index([skR[x] - skT[x] : x in [1 .. #skR]], 1);
-    return SST(R,T`Weight), row, skR[row];
+    return SST(R,T`Range), row, skR[row];
 end intrinsic;
 
 intrinsic Rectify(T::SSTab) -> SSTab, SeqEnum[RngIntElt], SeqEnum[RngIntElt]
@@ -141,8 +141,8 @@ intrinsic Evacuation(T::SSTab) -> SSTab
         r := Shape(T)[1];
         padding := Reverse([r - Shape(T)[i] : i in [1..#Shape(T)]]);
         // Calculate rows after rotating and reversing values
-        elts := Reverse([Reverse([T`Weight - x + 1 : x in row]) : row in Rows(T)]);
-        X := Rectify(SST(padding,elts,T`Weight));
+        elts := Reverse([Reverse([T`Range - x + 1 : x in row]) : row in Rows(T)]);
+        X := Rectify(SST(padding,elts,T`Range));
         return X;
     else
         //Rectify, evacuate, unrecity along the same path
@@ -153,7 +153,7 @@ end intrinsic;
 
 intrinsic Restrict(T::SSTab, a::RngIntElt, b::RngIntElt) -> SSTab
 {Restrict T to the boxes a,..,b}
-    require 1 le a and b le Weight(T): "Values must be between 0 and the weight of the tableau";
+    require 1 le a and b le Range(T): "Values must be between 0 and the range of the tableau";
     rows := Rows(T);
     // Find skew shape of new tableaux
     sk := [SkewShape(T)[row] + #[y : y in rows[row] | y lt a] : row in [1..#rows]];
@@ -165,15 +165,15 @@ end intrinsic;
 
 intrinsic Decompose(T::SSTab, parts::SeqEnum[RngIntElt]) -> SeqEnum[SSTab]
 {Decompose T into skew parts according to parts}
-    require &+parts eq Weight(T): "Sum of parts in decomposition must be weight of tableau";
+    require &+parts eq Range(T): "Sum of parts in decomposition must be range of tableau";
     parts := [0] cat parts;
     return [Restrict(T, &+parts[1..i]+1, &+parts[1..i+1]) : i in [1 .. #parts-1]];
 end intrinsic;
 
 intrinsic CactusInvolution(T::SSTab, a::RngIntElt, b::RngIntElt) -> SSTab
 {Act on T by the cactus involution corresponding to I=[a,b]}
-    require 1 le a and a le b and b le Weight(T): "Values must be between 1 and the weight of the tableau";
-    decomp := Decompose(T, [a-1, b-a+1, Weight(T)-b]);
+    require 1 le a and a le b and b le Range(T): "Values must be between 1 and the range of the tableau";
+    decomp := Decompose(T, [a-1, b-a+1, Range(T)-b]);
     // Evacuate middle component and recombine
     return decomp[1] + Evacuation(decomp[2]) + decomp[3];
 end intrinsic;
@@ -181,14 +181,14 @@ end intrinsic;
 intrinsic Promotion(T::SSTab) -> SSTab
 {Calculate the Scchützenberger promotion of T}
     require not IsSkew(T): "Promotion only applies to nonskew tableaux";
-    return Evacuation(CactusInvolution(T, 1, Weight(T)-1));
+    return Evacuation(CactusInvolution(T, 1, Range(T)-1));
 end intrinsic;
 
 intrinsic NestedEvacuation(T::SSTab) -> SSTab
 {Calculate the nested evacuation of T}
     require not IsSkew(T): "Nested evacuation only applies to nonskew tableaux";
     R := T;
-    for j in [1..Weight(T)] do
+    for j in [1..Range(T)] do
         R := CactusInvolution(R, 1, j);
     end for;
     return R;
@@ -198,8 +198,8 @@ end intrinsic;
 
 intrinsic IsDualEquivalent(R::SSTab, T::SSTab) -> BoolElt
 {Determine whether two tableaux are dual equivalent, i.e. connected in their tableau crystal}
-    require R`Weight eq T`Weight: "Tableaux must have the same weight";
-    if Content(R`Tab) eq Content(T`Tab) and Shape(R`Tab) eq Shape(T`Tab) then
+    require R`Range eq T`Range: "Tableaux must have the same range";
+    if Shape(R`Tab) eq Shape(T`Tab) then
         X, Rvacrow, Rvaccol := Rectify(R);
         Y, Tvacrow, Tvaccol := Rectify(T);
         return Rvacrow eq Tvacrow and Rvaccol eq Tvaccol;
@@ -211,12 +211,12 @@ end intrinsic;
 intrinsic HighestWeight(T::SSTab) -> BoolElt
 {Return the highest weight of the crystal component connected to T}
     sh := Shape(Rectify(T));
-    return sh cat [0 : x in [1..Weight(T)-#sh]];
+    return sh cat [0 : x in [1..Range(T)-#sh]];
 end intrinsic;
 
 intrinsic HighestWeight(T::SSTab, a::RngIntElt, b::RngIntElt) -> BoolElt
 {Return the highest weight of the component connected to T of the crystal restricted to [a,b]}
-    require 1 le a and a le b and b le Weight(T): "Values must be between 1 and Weight(T)";
+    require 1 le a and a le b and b le Range(T): "Values must be between 1 and the range of the tableau";
     sh := Shape(Rectify(Restrict(T, a, b)));
     return sh cat [0 : x in [1..b-a+1-#sh]];
 end intrinsic;
