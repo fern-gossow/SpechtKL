@@ -23,3 +23,8 @@ S,Restrict,"Restrict T to the boxes a,..,b",0,3,0,0,0,0,0,0,0,148,,0,0,148,,0,0,
 S,Decompose,Decompose T into skew parts according to parts,1,1,1,82,0,148,2,0,0,0,0,0,0,0,82,,0,0,SSTab,,82,-38,-38,-38,-38
 S,CactusInvolution,"Act on T by the cactus involution corresponding to I=[a,b]",0,3,0,0,0,0,0,0,0,148,,0,0,148,,0,0,SSTab,,SSTab,-38,-38,-38,-38
 S,Promotion,Calculate the Scchützenberger promotion of T,0,1,0,0,0,0,0,0,0,SSTab,,SSTab,-38,-38,-38,-38
+S,NestedEvacuation,Calculate the nested evacuation of T,0,1,0,0,0,0,0,0,0,SSTab,,SSTab,-38,-38,-38,-38
+S,IsDualEquivalent,"Determine whether two tableaux are dual equivalent, i.e. connected in their tableau crystal",0,2,0,0,0,0,0,0,0,SSTab,,0,0,SSTab,,36,-38,-38,-38,-38
+S,HighestWeight,Return the highest weight of the crystal component connected to T,0,1,0,0,0,0,0,0,0,SSTab,,36,-38,-38,-38,-38
+S,HighestWeight,"Return the highest weight of the component connected to T of the crystal restricted to [a,b]",0,3,0,0,0,0,0,0,0,148,,0,0,148,,0,0,SSTab,,36,-38,-38,-38,-38
+S,PartitionDominanceLoE,Determine dominance order on two partitions,2,0,1,82,0,148,1,1,82,0,148,2,0,0,0,0,0,0,0,82,,0,0,82,,36,-38,-38,-38,-38

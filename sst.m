@@ -193,3 +193,37 @@ intrinsic NestedEvacuation(T::SSTab) -> SSTab
     end for;
     return R;
 end intrinsic;
+
+// CRYSTAL STATISTICS AND DUAL EQUIVALENCE
+
+intrinsic IsDualEquivalent(R::SSTab, T::SSTab) -> BoolElt
+{Determine whether two tableaux are dual equivalent, i.e. connected in their tableau crystal}
+    require R`Weight eq T`Weight: "Tableaux must have the same weight";
+    if Content(R`Tab) eq Content(T`Tab) and Shape(R`Tab) eq Shape(T`Tab) then
+        X, Rvacrow, Rvaccol := Rectify(R);
+        Y, Tvacrow, Tvaccol := Rectify(T);
+        return Rvacrow eq Tvacrow and Rvaccol eq Tvaccol;
+    else
+        return false;
+    end if;
+end intrinsic;
+
+intrinsic HighestWeight(T::SSTab) -> BoolElt
+{Return the highest weight of the crystal component connected to T}
+    sh := Shape(Rectify(T));
+    return sh cat [0 : x in [1..Weight(T)-#sh]];
+end intrinsic;
+
+intrinsic HighestWeight(T::SSTab, a::RngIntElt, b::RngIntElt) -> BoolElt
+{Return the highest weight of the component connected to T of the crystal restricted to [a,b]}
+    require 1 le a and a le b and b le Weight(T): "Values must be between 1 and Weight(T)";
+    sh := Shape(Rectify(Restrict(T, a, b)));
+    return sh cat [0 : x in [1..b-a+1-#sh]];
+end intrinsic;
+
+intrinsic PartitionDominanceLoE(p::SeqEnum[RngIntElt], q::SeqEnum[RngIntElt]) -> BoolElt
+{Determine dominance order on two partitions}
+    require IsPartition(p) and IsPartition(q): "Sequences must be partitions";
+    require #p eq #q: "Partitions must have same length";
+    return &and([&+p[1..i] le &+q[1..i] : i in [1 .. #p]]);
+end intrinsic;
