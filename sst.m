@@ -2,6 +2,22 @@
 
 // Attach("C:/Users/**/Coding/Github/SpechtKL/sst.m");
 
+// INTERVALS AND PARABOLICS HELPERS
+
+function CompositionToIntervals(comp)
+    // Turn a composition into a list of intervals
+    comp := [0] cat comp;
+    return [<&+comp[1..i]+1, &+comp[1..i+1]> : i in [1..#comp-1]];
+end function;
+
+function ParabolicToIntervals(subset, n)
+    // Turn a subset {i1,...,ik} c {1,...,n-1} into a list of intervals
+    missing := [0] cat [i : i in [1..n-1] | i not in subset]
+    comp := [missing[j+1] - missing[j] : j in [1..#missing-1]]
+    return CompositionToIntervals(comp);
+end function;
+
+
 declare type SSTab;
 
 declare attributes SSTab: Tab, Range;
@@ -20,8 +36,8 @@ intrinsic SST(T::Tbl, n::RngIntElt) -> SSTab
 end intrinsic;
 
 intrinsic SST(T::Tbl) -> SSTab
-{Create a semistandard tableau with designated range}
-    return SST(T,Range(T));
+{Create a semistandard tableau with range = number of boxes}
+    return SST(T, Weight(T));
 end intrinsic;
 
 intrinsic SST(elts::SeqEnum[SeqEnum[RngIntElt]], n::RngIntElt) -> SSTab
@@ -32,7 +48,7 @@ end intrinsic;
 intrinsic SST(elts::SeqEnum[SeqEnum[RngIntElt]]) -> SSTab
 {Create a SST with range = number of boxes}
     T := Tableau(elts);
-    return SST(T, Range(T));
+    return SST(T, Weight(T));
 end intrinsic;
 
 intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]], n::RngIntElt) -> SSTab
@@ -43,7 +59,7 @@ end intrinsic;
 intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]]) -> SSTab
 {Create a SST given its skew shape with range = number of boxes}
     T := Tableau(skew, elts);
-    return SST(T, Range(T));
+    return SST(T, Weight(T));
 end intrinsic;
 
 // BASIC ATTRIBUTES
@@ -163,25 +179,38 @@ intrinsic Restrict(T::SSTab, a::RngIntElt, b::RngIntElt) -> SSTab
     return SST(sk, rows, b-a+1);
 end intrinsic;
 
-intrinsic Decompose(T::SSTab, parts::SeqEnum[RngIntElt]) -> SeqEnum[SSTab]
-{Decompose T into skew parts according to parts}
-    require &+parts eq Range(T): "Sum of parts in decomposition must be range of tableau";
-    parts := [0] cat parts;
-    return [Restrict(T, &+parts[1..i]+1, &+parts[1..i+1]) : i in [1 .. #parts-1]];
+intrinsic Restrict(T::SSTab, comp::SeqEnum[RngIntElt]) -> SeqEnum[SSTab]
+{Decompose T into skew parts according to a composition}
+    require &and[x ge 0 : x in comp]: "Composition must be nonnegative";
+    require &+comp eq Range(T): "Sum of parts in composition must be range of tableau";
+    intervals := CompositionToIntervals(comp);
+    return [Restrict(T, x[1], x[2]) : x in intervals];
 end intrinsic;
 
-intrinsic CactusInvolution(T::SSTab, a::RngIntElt, b::RngIntElt) -> SSTab
+intrinsic Evacuation(T::SSTab, a::RngIntElt, b::RngIntElt) -> SSTab
 {Act on T by the cactus involution corresponding to I=[a,b]}
     require 1 le a and a le b and b le Range(T): "Values must be between 1 and the range of the tableau";
-    decomp := Decompose(T, [a-1, b-a+1, Range(T)-b]);
+    decomp := Restrict(T, [a-1, b-a+1, Range(T)-b]);
     // Evacuate middle component and recombine
     return decomp[1] + Evacuation(decomp[2]) + decomp[3];
+end intrinsic;
+
+intrinsic Evacuation(T::SSTab, comp::SeqEnum[RngIntElt]) -> SSTab
+{Act on T by the cactus involution corresponding to a composition}
+    require &and[x ge 0 : x in comp]: "Composition must be nonnegative";
+    require &+comp eq Range(T): "Sum of parts in composition must be range of tableau";
+    intervals := CompositionToIntervals(comp);
+    R := T;
+    for x in intervals do
+        R := Evacuation(R, x[1], x[2]);
+    end for;
+    return R;
 end intrinsic;
 
 intrinsic Promotion(T::SSTab) -> SSTab
 {Calculate the Scchützenberger promotion of T}
     require not IsSkew(T): "Promotion only applies to nonskew tableaux";
-    return Evacuation(CactusInvolution(T, 1, Range(T)-1));
+    return Evacuation(Evacuation(T, 1, Range(T)-1));
 end intrinsic;
 
 intrinsic NestedEvacuation(T::SSTab) -> SSTab
@@ -189,7 +218,7 @@ intrinsic NestedEvacuation(T::SSTab) -> SSTab
     require not IsSkew(T): "Nested evacuation only applies to nonskew tableaux";
     R := T;
     for j in [1..Range(T)] do
-        R := CactusInvolution(R, 1, j);
+        R := Evacuation(R, 1, j);
     end for;
     return R;
 end intrinsic;
@@ -208,18 +237,26 @@ intrinsic IsDualEquivalent(R::SSTab, T::SSTab) -> BoolElt
     end if;
 end intrinsic;
 
-intrinsic HighestWeight(T::SSTab) -> BoolElt
+intrinsic HighestWeight(T::SSTab) -> SeqEnum[RngIntElt]
 {Return the highest weight of the crystal component connected to T}
     sh := Shape(Rectify(T));
     return sh cat [0 : x in [1..Range(T)-#sh]];
 end intrinsic;
 
-intrinsic HighestWeight(T::SSTab, a::RngIntElt, b::RngIntElt) -> BoolElt
+intrinsic HighestWeight(T::SSTab, a::RngIntElt, b::RngIntElt) -> SeqEnum[RngIntElt]
 {Return the highest weight of the component connected to T of the crystal restricted to [a,b]}
     require 1 le a and a le b and b le Range(T): "Values must be between 1 and the range of the tableau";
-    sh := Shape(Rectify(Restrict(T, a, b)));
-    return sh cat [0 : x in [1..b-a+1-#sh]];
+    return HighestWeight(Restrict(T,a,b));
 end intrinsic;
+
+intrinsic HighestWeight(T::SSTab, comp::SeqEnum[RngIntElt]) -> SeqEnum[RngIntElt]
+{Return the list of highest weights for connected components of T corresponding to a composition}
+    require &and[x ge 0 : x in comp]: "Composition must be nonnegative";
+    require &+comp eq Range(T): "Sum of parts in composition must be range of tableau";
+    intervals := CompositionToIntervals(comp);
+    return [HighestWeight(T,x[1],x[2]) : x in intervals];
+end intrinsic;
+
 
 intrinsic PartitionDominanceLoE(p::SeqEnum[RngIntElt], q::SeqEnum[RngIntElt]) -> BoolElt
 {Determine dominance order on two partitions}
@@ -227,3 +264,4 @@ intrinsic PartitionDominanceLoE(p::SeqEnum[RngIntElt], q::SeqEnum[RngIntElt]) ->
     require #p eq #q: "Partitions must have same length";
     return &and([&+p[1..i] le &+q[1..i] : i in [1 .. #p]]);
 end intrinsic;
+

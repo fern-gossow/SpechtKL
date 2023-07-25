@@ -336,8 +336,6 @@ DecompLoE := function( P, Q, alpha );
     end if;
 end function;
 
-
-
     //---SUBGROUPS OF TABLEAUX PERMUTATIONS---//
 
 // Find the subgroup of cactus involutions in Sym(SYT(sh))
