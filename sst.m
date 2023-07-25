@@ -135,7 +135,7 @@ intrinsic InverseRectify(T::SSTab, rows::SeqEnum[RngIntElt], cols::SeqEnum[RngIn
     return R;
 end intrinsic;
 
-intrinsic Evacuate(T::SSTab) -> SSTab
+intrinsic Evacuation(T::SSTab) -> SSTab
 {Perform usual evacuation for tableaux, and reversal for skew tableaux}
     if not IsSkew(T) then
         r := Shape(T)[1];
@@ -147,7 +147,7 @@ intrinsic Evacuate(T::SSTab) -> SSTab
     else
         //Rectify, evacuate, unrecity along the same path
         X, vr, vc := Rectify(T);
-        return InverseRectify(Evacuate(X), Reverse(vr), Reverse(vc));
+        return InverseRectify(Evacuation(X), Reverse(vr), Reverse(vc));
     end if;
 end intrinsic;
 
@@ -175,6 +175,21 @@ intrinsic CactusInvolution(T::SSTab, a::RngIntElt, b::RngIntElt) -> SSTab
     require 1 le a and a le b and b le Weight(T): "Values must be between 1 and the weight of the tableau";
     decomp := Decompose(T, [a-1, b-a+1, Weight(T)-b]);
     // Evacuate middle component and recombine
-    return decomp[1] + Evacuate(decomp[2]) + decomp[3];
+    return decomp[1] + Evacuation(decomp[2]) + decomp[3];
 end intrinsic;
 
+intrinsic Promotion(T::SSTab) -> SSTab
+{Calculate the Scchützenberger promotion of T}
+    require not IsSkew(T): "Promotion only applies to nonskew tableaux";
+    return Evacuation(CactusInvolution(T, 1, Weight(T)-1));
+end intrinsic;
+
+intrinsic NestedEvacuation(T::SSTab) -> SSTab
+{Calculate the nested evacuation of T}
+    require not IsSkew(T): "Nested evacuation only applies to nonskew tableaux";
+    R := T;
+    for j in [1..Weight(T)] do
+        R := CactusInvolution(R, 1, j);
+    end for;
+    return R;
+end intrinsic;

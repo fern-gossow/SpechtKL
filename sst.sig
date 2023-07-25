@@ -18,7 +18,8 @@ S,JeuDeTaquin,"Perform jdt, and record the vacated cell",0,3,0,0,0,0,0,0,0,148,,
 S,InverseJeuDeTaquin,"Perform inverse jdt, and record the vacated cell",0,3,0,0,0,0,0,0,0,148,,0,0,148,,0,0,SSTab,,SSTab,148,148,-38,-38
 S,Rectify,"Rectify T, and record the vacated rows and columns",0,1,0,0,0,0,0,0,0,SSTab,,SSTab,82,82,-38,-38
 S,InverseRectify,Unrectify T along a path,2,1,1,82,0,148,2,1,82,0,148,3,0,0,0,0,0,0,0,82,,0,0,82,,0,0,SSTab,,SSTab,-38,-38,-38,-38
-S,Evacuate,"Perform usual evacuation for tableaux, and reversal for skew tableaux",0,1,0,0,0,0,0,0,0,SSTab,,SSTab,-38,-38,-38,-38
+S,Evacuation,"Perform usual evacuation for tableaux, and reversal for skew tableaux",0,1,0,0,0,0,0,0,0,SSTab,,SSTab,-38,-38,-38,-38
 S,Restrict,"Restrict T to the boxes a,..,b",0,3,0,0,0,0,0,0,0,148,,0,0,148,,0,0,SSTab,,SSTab,-38,-38,-38,-38
 S,Decompose,Decompose T into skew parts according to parts,1,1,1,82,0,148,2,0,0,0,0,0,0,0,82,,0,0,SSTab,,82,-38,-38,-38,-38
 S,CactusInvolution,"Act on T by the cactus involution corresponding to I=[a,b]",0,3,0,0,0,0,0,0,0,148,,0,0,148,,0,0,SSTab,,SSTab,-38,-38,-38,-38
+S,Promotion,Calculate the Scchützenberger promotion of T,0,1,0,0,0,0,0,0,0,SSTab,,SSTab,-38,-38,-38,-38
