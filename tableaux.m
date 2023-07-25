@@ -113,8 +113,6 @@ CactusInvolution := function(T, a, b)
     return ComposeTableaux(decomp);
 end function;
 
-
-
     //---CONSTRUCTION---//
 
 // 1 .. n placed row-by-row into a Young tableau
