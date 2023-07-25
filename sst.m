@@ -12,8 +12,7 @@ intrinsic SST(T::Tbl, n::RngIntElt) -> SSTab
 {Create a semistandard tableau with designated weight}
     require Parent(T) eq TableauIntegerMonoid(): "Tableau must be over the positive integers";
     elts := &cat(Eltseq(T));
-    require Max(elts) le n: "Weight must be more than maximum value";
-    require n le #elts: "Weight must be less than number of boxes";
+    require Max(elts cat [0]) le n: "Weight must be more than maximum value";
     X := New(SSTab);
     X`Tab := T;
     X`Weight := n;
@@ -83,6 +82,11 @@ intrinsic IsSkew(T::SSTab) -> Bool
     return IsSkew(T`Tab);
 end intrinsic;
 
+intrinsic Rows(T::SSTab) -> SeqEnum[SeqEnum[RngIntElt]]
+{Return the rows of T}
+    return [Eltseq(x) : x in Rows(T`Tab)];
+end intrinsic;
+
 // ACTIONS
 
 intrinsic JeuDeTaquin(T::SSTab, i::RngIntElt, j::RngIntElt) -> SSTab, RngIntElt, RngIntElt
@@ -136,14 +140,41 @@ intrinsic Evacuate(T::SSTab) -> SSTab
     if not IsSkew(T) then
         r := Shape(T)[1];
         padding := Reverse([r - Shape(T)[i] : i in [1..#Shape(T)]]);
-        rows := [Eltseq(x) : x in Rows(T`Tab)];
         // Calculate rows after rotating and reversing values
-        elts := Reverse([Reverse([T`Weight - x + 1 : x in row]) : row in rows]);
+        elts := Reverse([Reverse([T`Weight - x + 1 : x in row]) : row in Rows(T)]);
         X := Rectify(SST(padding,elts,T`Weight));
         return X;
     else
+        //Rectify, evacuate, unrecity along the same path
         X, vr, vc := Rectify(T);
         return InverseRectify(Evacuate(X), Reverse(vr), Reverse(vc));
     end if;
+end intrinsic;
+
+intrinsic Restrict(T::SSTab, a::RngIntElt, b::RngIntElt) -> SSTab
+{Restrict T to the boxes a,..,b}
+    require 1 le a and b le Weight(T): "Values must be between 0 and the weight of the tableau";
+    rows := Rows(T);
+    // Find skew shape of new tableaux
+    sk := [SkewShape(T)[row] + #[y : y in rows[row] | y lt a] : row in [1..#rows]];
+    for row in [1..#rows] do
+        rows[row] := [x-a+1 : x in rows[row] | x ge a and x le b];
+    end for;
+    return SST(sk, rows, b-a+1);
+end intrinsic;
+
+intrinsic Decompose(T::SSTab, parts::SeqEnum[RngIntElt]) -> SeqEnum[SSTab]
+{Decompose T into skew parts according to parts}
+    require &+parts eq Weight(T): "Sum of parts in decomposition must be weight of tableau";
+    parts := [0] cat parts;
+    return [Restrict(T, &+parts[1..i]+1, &+parts[1..i+1]) : i in [1 .. #parts-1]];
+end intrinsic;
+
+intrinsic CactusInvolution(T::SSTab, a::RngIntElt, b::RngIntElt) -> SSTab
+{Act on T by the cactus involution corresponding to I=[a,b]}
+    require 1 le a and a le b and b le Weight(T): "Values must be between 1 and the weight of the tableau";
+    decomp := Decompose(T, [a-1, b-a+1, Weight(T)-b]);
+    // Evacuate middle component and recombine
+    return decomp[1] + Evacuate(decomp[2]) + decomp[3];
 end intrinsic;
 
