@@ -14,13 +14,28 @@ intrinsic SymmetricGroupData(n::RngIntElt) -> GrpPerm, GrpFPCox, Map
     return S,W,h;
 end intrinsic;
 
-//intrinsic PermutationsToCoxeter(SeqEnum[SeqEnum[RngIntElt]])
-
-intrinsic bean(n::BoolElt)
-{Checks for bean}
-    if n then
-        "bean";
+intrinsic MuCoefficient(v::GrpFPCoxElt, w::GrpFPCoxElt) -> RngIntElt
+{Return the mu coefficient between Coxeter group elements}
+    require Parent(v) eq Parent(w): "Permutations must be from the same group";
+    l := Length(w) - Length(v);
+    if l mod 2 eq 0 then
+        return 0;
+    else if l ge 0 then
+        return Coefficient(KLPolynomial(v,w), Round((l-1)/2));
     else
-        "not bean";
+        return Coefficient(KLPolynomial(w,v), Round((-l-1)/2));
     end if;
-end intrinsic
+end intrinsic;
+
+intrinsic MuCoefficientMatrix(elts::SeqEnum[GrpFPCox]) -> AlgMatElt
+{Return matrix of mu coefficients between Coxeter group elements}
+    M := ZeroMatrix(Integers(), #elts, #elts);
+    for i in [1..#elts] do
+        for j in [1..i-1] do
+            mu := MuCoefficient(elts[i], elts[j]);
+            M[i,j] := mu;
+            M[j,i] := mu;
+        end for;
+    end for;
+    return M;
+end intrinsic;
