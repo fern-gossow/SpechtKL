@@ -10,10 +10,10 @@ function CompositionToIntervals(comp)
     return [<&+comp[1..i]+1, &+comp[1..i+1]> : i in [1..#comp-1]];
 end function;
 
-function ParabolicToIntervals(subset, n)
+function ParabolicToIntervals(parabolic, n)
     // Turn a subset {i1,...,ik} c {1,...,n-1} into a list of intervals
-    missing := [0] cat [i : i in [1..n-1] | i not in subset]
-    comp := [missing[j+1] - missing[j] : j in [1..#missing-1]]
+    missing := [0] cat [i : i in [1..n-1] | not i in parabolic] cat [n];
+    comp := [missing[j+1] - missing[j] : j in [1..#missing-1]];
     return CompositionToIntervals(comp);
 end function;
 
@@ -187,6 +187,13 @@ intrinsic Restrict(T::SSTab, comp::SeqEnum[RngIntElt]) -> SeqEnum[SSTab]
     return [Restrict(T, x[1], x[2]) : x in intervals];
 end intrinsic;
 
+intrinsic Restrict(T::SSTab, parabolic::SetEnum[RngIntElt]) -> SeqEnum[SSTab]
+{Decompose T into skew parts according to a subset of generators}
+    require parabolic subset {1..T`Range}: "Generators must be between 1 and Range(T)-1";
+    intervals := ParabolicToIntervals(parabolic, T`Range);
+    return [Restrict(T, x[1], x[2]) : x in intervals];
+end intrinsic;
+
 intrinsic Evacuation(T::SSTab, a::RngIntElt, b::RngIntElt) -> SSTab
 {Act on T by the cactus involution corresponding to I=[a,b]}
     require 1 le a and a le b and b le Range(T): "Values must be between 1 and the range of the tableau";
@@ -200,6 +207,17 @@ intrinsic Evacuation(T::SSTab, comp::SeqEnum[RngIntElt]) -> SSTab
     require &and[x ge 0 : x in comp]: "Composition must be nonnegative";
     require &+comp eq Range(T): "Sum of parts in composition must be range of tableau";
     intervals := CompositionToIntervals(comp);
+    R := T;
+    for x in intervals do
+        R := Evacuation(R, x[1], x[2]);
+    end for;
+    return R;
+end intrinsic;
+
+intrinsic Evacuation(T::SSTab, parabolic::SetEnum[RngIntElt]) -> SSTab
+{Act on T by the cactus involution corresponding to a parabolic}
+    require parabolic subset {1..T`Range}: "Generators must be between 1 and Range(T)-1";
+    intervals := ParabolicToIntervals(parabolic, T`range);
     R := T;
     for x in intervals do
         R := Evacuation(R, x[1], x[2]);
@@ -257,6 +275,12 @@ intrinsic HighestWeight(T::SSTab, comp::SeqEnum[RngIntElt]) -> SeqEnum[RngIntElt
     return [HighestWeight(T,x[1],x[2]) : x in intervals];
 end intrinsic;
 
+intrinsic HighestWeight(T::SSTab, parabolic::SetEnum[RngIntElt]) -> SeqEnum[RngIntElt]
+{Return the list of highest weights for connected components of T corresponding to a parabolic}
+    require parabolic subset {1..T`Range}: "Generators must be between 1 and Range(T)-1";
+    intervals := ParabolicToIntervals(parabolic, T`Range);
+    return [HighestWeight(T,x[1],x[2]) : x in intervals];
+end intrinsic;
 
 intrinsic PartitionDominanceLoE(p::SeqEnum[RngIntElt], q::SeqEnum[RngIntElt]) -> BoolElt
 {Determine dominance order on two partitions}
