@@ -12,7 +12,7 @@ S,Range,Return the range of T,0,1,0,0,0,0,0,0,0,SSTab,,148,-38,-38,-38,-38
 S,Shape,Return the shape of T,0,1,0,0,0,0,0,0,0,SSTab,,82,-38,-38,-38,-38
 S,SkewShape,Return the skew shape of T,0,1,0,0,0,0,0,0,0,SSTab,,82,-38,-38,-38,-38
 S,IsSkew,Return whether T is a skew tableau,0,1,0,0,0,0,0,0,0,SSTab,,37,-38,-38,-38,-38
-S,Weight,"Return the crystal weight, i.e. content of T",0,1,0,0,0,0,0,0,0,SSTab,,37,-38,-38,-38,-38
+S,Weight,"Return the crystal weight, i.e. content of T",0,1,0,0,0,0,0,0,0,SSTab,,82,-38,-38,-38,-38
 S,eq,Check equality. Tableaux must have same range to be equal,0,2,0,0,0,0,0,0,0,SSTab,,0,0,SSTab,,36,-38,-38,-38,-38
 S,Print,Print T at level L,0,2,0,0,1,0,0,0,0,298,,0,0,SSTab,,-38,-38,-38,-38,-38
 S,+,Compose two skew tableaux by joining them together,0,2,0,0,0,0,0,0,0,SSTab,,0,0,SSTab,,SSTab,-38,-38,-38,-38

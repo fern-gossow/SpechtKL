@@ -90,7 +90,7 @@ intrinsic IsSkew(T::SSTab) -> Bool
     return IsSkew(T`Tab);
 end intrinsic;
 
-intrinsic Weight(T::SSTab) -> Bool
+intrinsic Weight(T::SSTab) -> SeqEnum[RngIntElt]
 {Return the crystal weight, i.e. content of T}
     return Content(T`Tab) cat [0 : x in [1..T`Range-#Content(T`Tab)]];
 end intrinsic;
@@ -110,7 +110,6 @@ intrinsic Print(T::SSTab, L::MonStgElt)
         tabstring cat:= &cat([""] cat [IntegerToString(i) cat " " : i in rows[r]]);
         tabstring := Substring(tabstring,1,#tabstring-1) cat "\n";
     end for;
-    tabstring := Substring(tabstring,1,#tabstring-1);
     // If maximal, print the shape and range
     if L eq "Maximal" then
         if IsSkew(T) then
