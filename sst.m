@@ -350,7 +350,7 @@ intrinsic HighestWeightLoE(R::SSTab, T::SSTab, parabolic::SetEnum[RngIntElt]) ->
     return &and[PartitionDominanceLoE(hwR[i], hwT[i]) : i in [1..#hwR]];
 end intrinsic;
 
-// STANDARD SETS OF TABLEAUX
+// CLASSES OF TABLEAUX
 
 intrinsic SetOfSYT(shape::SeqEnum[RngIntElt]) -> SetEnum[SSTab]
 {Create the set of standard tableaux with given shape}
