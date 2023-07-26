@@ -320,6 +320,31 @@ intrinsic PartitionDominanceLoE(p::SeqEnum[RngIntElt], q::SeqEnum[RngIntElt]) ->
     return &and([&+p[1..i] le &+q[1..i] : i in [1 .. #p]]);
 end intrinsic;
 
+intrinsic HighestWeightLoE(R::SSTab, T::SSTab) -> BoolElt
+{Check dominance order for tableaux weights}
+    require R`Range eq T`Range: "Tableaux must have same range";
+    return PartitionDominanceLoE(HighestWeight(R), HighestWeight(T));
+end intrinsic;
+
+intrinsic HighestWeightLoE(R::SSTab, T::SSTab, a::RngIntElt, b::RngIntElt) -> BoolElt
+{Check dominance order for tableaux weights with respect to the interval [a,b]}
+    return PartitionDominanceLoE(HighestWeight(R, a, b), HighestWeight(T, a, b));
+end intrinsic;
+
+intrinsic HighestWeightLoE(R::SSTab, T::SSTab, comp::SeqEnum[RngIntElt]) -> BoolElt
+{Check dominance order for tableaux weights with respect to a composition}
+    hwR := HighestWeight(R, comp);
+    hwT := HighestWeight(T, comp);
+    return &and[PartitionDominanceLoE(hwR[i], hwT[i]) : i in [1..#hwR]];
+end intrinsic;
+
+intrinsic HighestWeightLoE(R::SSTab, T::SSTab, parabolic::SetEnum[RngIntElt]) -> BoolElt
+{Check dominance order for tableaux weights with respect to a composition}
+    hwR := HighestWeight(R, parabolic);
+    hwT := HighestWeight(T, parabolic);
+    return &and[PartitionDominanceLoE(hwR[i], hwT[i]) : i in [1..#hwR]];
+end intrinsic;
+
 // STANDARD SETS OF TABLEAUX
 
 intrinsic SetOfSYT(shape::SeqEnum[RngIntElt]) -> SetEnum[SSTab]
