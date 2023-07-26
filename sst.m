@@ -90,6 +90,11 @@ intrinsic IsSkew(T::SSTab) -> Bool
     return IsSkew(T`Tab);
 end intrinsic;
 
+intrinsic Weight(T::SSTab) -> Bool
+{Return the crystal weight, i.e. content of T}
+    return Content(T`Tab) cat [0 : x in [1..T`Range-#Content(T`Tab)]];
+end intrinsic;
+
 intrinsic 'eq'(R::SSTab, T::SSTab) -> BoolElt
 {Check equality. Tableaux must have same range to be equal}
     return R`Tab eq T`Tab and R`Range eq T`Range;
@@ -365,4 +370,16 @@ intrinsic SetOfSSYT(shape::SeqEnum[RngIntElt], content::SeqEnum[RngIntElt]) -> S
     require #content ge #shape: "Number of labels must be at least the number of rows";
     require &+content eq &+shape: "Sum of contents must equal size of shape";
     return {SST(T, #content) : T in TableauxOnShapeWithContent(shape, content)};
+end intrinsic;
+
+intrinsic DualEquivalenceClass(T::SSTab) -> SetEnum[SSTab]
+{Return the set of tableaux dual equivalent to T}
+    R, vacrow, vaccol := Rectify(T);
+    return {InverseRectify(X, Reverse(vacrow), Reverse(vaccol)) : X in SetOfSSYT(Shape(R), Range(R))};
+end intrinsic;
+
+intrinsic DualEquivalenceClassStandard(T::SSTab) -> SetEnum[SSTab]
+{Return the set of standard skew tableaux dual equivalent to T}
+    R, vacrow, vaccol := Rectify(T);
+    return {InverseRectify(X, Reverse(vacrow), Reverse(vaccol)) : X in SetOfSYT(Shape(R))};
 end intrinsic;
