@@ -17,6 +17,7 @@ function ParabolicToIntervals(parabolic, n)
     return CompositionToIntervals(comp);
 end function;
 
+// SEMISTANDARD TABLEAUX TYPE
 
 declare type SSTab;
 
@@ -62,26 +63,11 @@ intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]]) -> SS
     return SST(T, Weight(T));
 end intrinsic;
 
-
 // BASIC ATTRIBUTES
 
-intrinsic Print(T::SSTab)
-{Print T}
-    printf"%o", T`Tab;
-end intrinsic;
-
-intrinsic 'eq'(R::SSTab, T::SSTab) -> BoolElt
-{Check equality. Tableaux must have same range to be equal}
-    return R`Tab eq T`Tab and R`Range eq T`Range;
-end intrinsic;
-
-intrinsic '+'(P::SSTab, Q::SSTab) -> SSTab
-{Compose two skew tableaux by joining them together}
-    require [x : x in SkewShape(Q`Tab) | x gt 0] eq Shape(P`Tab): "Skew shapes must match";
-    rowsP := Eltseq(P`Tab);
-    rowsQ := [[x + P`Range : x in row] : row in Eltseq(Q`Tab)];
-    elts := [rowsP[r] cat rowsQ[r] : r in [1..#rowsP]] cat rowsQ[#rowsP+1..#rowsQ];
-    return SST(SkewShape(P`Tab), elts, P`Range+Q`Range);
+intrinsic Rows(T::SSTab) -> SeqEnum[SeqEnum[RngIntElt]]
+{Return the rows of T}
+    return [Eltseq(x) : x in Rows(T`Tab)];
 end intrinsic;
 
 intrinsic Range(T::SSTab) -> RngIntElt
@@ -104,9 +90,42 @@ intrinsic IsSkew(T::SSTab) -> Bool
     return IsSkew(T`Tab);
 end intrinsic;
 
-intrinsic Rows(T::SSTab) -> SeqEnum[SeqEnum[RngIntElt]]
-{Return the rows of T}
-    return [Eltseq(x) : x in Rows(T`Tab)];
+intrinsic 'eq'(R::SSTab, T::SSTab) -> BoolElt
+{Check equality. Tableaux must have same range to be equal}
+    return R`Tab eq T`Tab and R`Range eq T`Range;
+end intrinsic;
+
+intrinsic Print(T::SSTab, L::MonStgElt)
+{Print T at level L}
+    rows := Rows(T);
+    // Create a string which prints the elements of the tableau"
+    tabstring := "";
+    for r in [1..#SkewShape(T`Tab)] do
+        tabstring cat:= &cat([""] cat ["-" cat " " : x in [1..SkewShape(T`Tab)[r]]]);
+        tabstring cat:= &cat([""] cat [IntegerToString(i) cat " " : i in rows[r]]);
+        tabstring := Substring(tabstring,1,#tabstring-1) cat "\n";
+    end for;
+    tabstring := Substring(tabstring,1,#tabstring-1);
+    // If maximal, print the shape and range
+    if L eq "Maximal" then
+        if IsSkew(T) then
+            printf "Tableau with shape %o / %o and range %o.\n%o", Shape(T`Tab), SkewShape(T`Tab), T`Range, tabstring;
+        else
+            printf "Tableau with shape %o and range %o.\n%o", Shape(T`Tab), T`Range, tabstring;
+        end if;
+    // Otherwise, just print the elements of the tableau
+    else
+        printf"%o", tabstring;
+    end if;
+end intrinsic;
+
+intrinsic '+'(P::SSTab, Q::SSTab) -> SSTab
+{Compose two skew tableaux by joining them together}
+    require [x : x in SkewShape(Q`Tab) | x gt 0] eq Shape(P`Tab): "Skew shapes must match";
+    rowsP := Eltseq(P`Tab);
+    rowsQ := [[x + P`Range : x in row] : row in Eltseq(Q`Tab)];
+    elts := [rowsP[r] cat rowsQ[r] : r in [1..#rowsP]] cat rowsQ[#rowsP+1..#rowsQ];
+    return SST(SkewShape(P`Tab), elts, P`Range+Q`Range);
 end intrinsic;
 
 // ACTIONS
@@ -248,6 +267,12 @@ intrinsic NestedEvacuation(T::SSTab) -> SSTab
 end intrinsic;
 
 // CRYSTAL STATISTICS AND DUAL EQUIVALENCE
+
+intrinsic IsKnuthEquivalent(R::SSTab, T::SSTab) -> BoolElt
+{Determine whether two tableaux are Knuth equivalent, i.e. slides get from one to the other}
+    require R`Range eq T`Range: "Tableaux must have the same range";
+    return Rectify(R) eq Rectify(T);
+end intrinsic;
 
 intrinsic IsDualEquivalent(R::SSTab, T::SSTab) -> BoolElt
 {Determine whether two tableaux are dual equivalent, i.e. connected in their tableau crystal}
