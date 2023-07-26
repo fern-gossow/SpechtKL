@@ -22,7 +22,7 @@ declare type SSTab;
 
 declare attributes SSTab: Tab, Range;
 
-// INITIALISATION
+// CREATION
 
 intrinsic SST(T::Tbl, n::RngIntElt) -> SSTab
 {Create a semistandard tableau with designated range}
@@ -62,11 +62,17 @@ intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]]) -> SS
     return SST(T, Weight(T));
 end intrinsic;
 
+
 // BASIC ATTRIBUTES
 
 intrinsic Print(T::SSTab)
 {Print T}
     printf"%o", T`Tab;
+end intrinsic;
+
+intrinsic 'eq'(R::SSTab, T::SSTab) -> BoolElt
+{Check equality. Tableaux must have same range to be equal}
+    return R`Tab eq T`Tab and R`Range eq T`Range;
 end intrinsic;
 
 intrinsic '+'(P::SSTab, Q::SSTab) -> SSTab
@@ -289,3 +295,24 @@ intrinsic PartitionDominanceLoE(p::SeqEnum[RngIntElt], q::SeqEnum[RngIntElt]) ->
     return &and([&+p[1..i] le &+q[1..i] : i in [1 .. #p]]);
 end intrinsic;
 
+// STANDARD SETS OF TABLEAUX
+
+intrinsic SetOfSYT(shape::SeqEnum[RngIntElt]) -> SetEnum[SSTab]
+{Create the set of standard tableaux with given shape}
+    return {SST(T, Weight(T)) : T in StandardTableaux(shape)};
+end intrinsic;
+
+intrinsic SetOfSSYT(shape::SeqEnum[RngIntElt], range::RngIntElt) -> SetEnum[SSTab]
+{Create the set of semistandard tableaux with given shape and range}
+    require IsPartition(shape): "Shape must be a partition";
+    require range ge #shape: "Range must be at least the number of rows";
+    return {SST(T, range) : T in TableauxOfShape(shape, range)};
+end intrinsic;
+
+intrinsic SetOfSSYT(shape::SeqEnum[RngIntElt], content::SeqEnum[RngIntElt]) -> SetEnum[SSTab]
+{Create the set of semistandard tableaux with given shape and content}
+    require IsPartition(shape): "Shape must be a partition";
+    require #content ge #shape: "Number of labels must be at least the number of rows";
+    require &+content eq &+shape: "Sum of contents must equal size of shape";
+    return {SST(T, #content) : T in TableauxOnShapeWithContent(shape, content)};
+end intrinsic;

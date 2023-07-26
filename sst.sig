@@ -8,6 +8,7 @@ S,SST,Create a SST with range = number of boxes,1,0,1,82,1,82,0,148,1,0,0,0,0,0,
 S,SST,Create a SST with prescribed range given its skew shape,2,0,1,82,0,148,1,1,82,1,82,0,148,3,0,0,0,0,0,0,0,148,,0,0,82,,0,0,82,,SSTab,-38,-38,-38,-38
 S,SST,Create a SST given its skew shape with range = number of boxes,2,0,1,82,0,148,1,1,82,1,82,0,148,2,0,0,0,0,0,0,0,82,,0,0,82,,SSTab,-38,-38,-38,-38
 S,Print,Print T,0,1,0,0,1,0,0,0,0,SSTab,,-38,-38,-38,-38,-38
+S,eq,Check equality. Tableaux must have same range to be equal,0,2,0,0,0,0,0,0,0,SSTab,,0,0,SSTab,,36,-38,-38,-38,-38
 S,+,Compose two skew tableaux by joining them together,0,2,0,0,0,0,0,0,0,SSTab,,0,0,SSTab,,SSTab,-38,-38,-38,-38
 S,Range,Return the range of T,0,1,0,0,0,0,0,0,0,SSTab,,148,-38,-38,-38,-38
 S,Shape,Return the shape of T,0,1,0,0,0,0,0,0,0,SSTab,,82,-38,-38,-38,-38
@@ -33,3 +34,6 @@ S,HighestWeight,"Return the highest weight of the component connected to T of th
 S,HighestWeight,Return the list of highest weights for connected components of T corresponding to a composition,1,1,1,82,0,148,2,0,0,0,0,0,0,0,82,,0,0,SSTab,,82,-38,-38,-38,-38
 S,HighestWeight,Return the list of highest weights for connected components of T corresponding to a parabolic,1,1,1,83,0,148,2,0,0,0,0,0,0,0,83,,0,0,SSTab,,82,-38,-38,-38,-38
 S,PartitionDominanceLoE,Determine dominance order on two partitions,2,0,1,82,0,148,1,1,82,0,148,2,0,0,0,0,0,0,0,82,,0,0,82,,36,-38,-38,-38,-38
+S,SetOfSYT,Create the set of standard tableaux with given shape,1,0,1,82,0,148,1,0,0,0,0,0,0,0,82,,83,-38,-38,-38,-38
+S,SetOfSSYT,Create the set of semistandard tableaux with given shape and range,1,0,1,82,0,148,2,0,0,0,0,0,0,0,148,,0,0,82,,83,-38,-38,-38,-38
+S,SetOfSSYT,Create the set of semistandard tableaux with given shape and content,2,0,1,82,0,148,1,1,82,0,148,2,0,0,0,0,0,0,0,82,,0,0,82,,83,-38,-38,-38,-38
