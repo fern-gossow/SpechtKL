@@ -1,4 +1,6 @@
-// A package for computing the KL matrices. This requires sst.m
+// A package for computing the KL matrices specialised to v=q=1. 
+
+// Requires sst.m
 
 intrinsic SymmetricGroupData(n::RngIntElt) -> GrpPerm, GrpFPCox, Map
 {Return the symmetric group, it's Coxeter presentation, and a map between them}
@@ -38,4 +40,34 @@ intrinsic MuCoefficientMatrix(elts::SeqEnum[GrpFPCox]) -> AlgMatElt
         end for;
     end for;
     return M;
+end intrinsic;
+
+intrinsic KLRepresentationMatrices(elts::SeqEnum[GrpFPCox]) -> SeqEnum[AlgMatElt]
+{Generator matrices of KL representation for an ordered list of Coxeter elements}
+    W := Parent(elts[1]);
+    require &and[Parent(elt) eq W : elt in elts]: "All elements must be from the same group"
+    M := MuCoefficientTable(elts);
+    // Initialise generator matrices
+    S := [ZeroMatrix(Integers(), #elts, #elts) : k in [1..#Generators(W)]];
+    for i in [1..#elts] do
+        for j in [1..#elts] do
+            // Calculate coeff of C_w in s_k . C_v
+            v := elts[i];
+            w := elts[j];
+            if v eq w then
+                for k in LeftDescentSet(W, v) do
+                    S[k][j,i] := -1;
+                end for;
+                for k in {1 .. #Generators(W)} diff LeftDescentSet(W, v) do
+                    S[k][j,i] := 1;
+                end for;
+            else
+                mu := M[i,j];
+                for k in ({1..#Generators(W)} diff LeftDescentSet(W,v)) meet LeftDescentSet(W,w) do
+                    S[k][j,i] := mu;
+                end for;
+            end if;
+        end for;
+    end for;
+    return S;
 end intrinsic;
