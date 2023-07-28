@@ -1,5 +1,5 @@
 # SpechtKL
-_A MAGMA package for computing with the Kazhdan-Lusztig basis of Specht modules._
+_A MAGMA package for computing with the Kazhdan-Lusztig basis of Specht modules. Currently WIP._
 
 ## Introduction
 
