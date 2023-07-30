@@ -21,11 +21,11 @@ end function;
 
 // Find the first inversion or noninversion cut
 function FindSeparableCut(w)
-    // Require w to be a permutation
+    // Require w to be a permutation on [a..b]
     for i in [1..#w] do
-        if Seqset(w[1..i]) eq {1..i} then
+        if Seqset(w[1..i]) eq {Minimum(w)..Minimum(w)+i-1} then
             return i,1;
-        elif Seqset(w[1..i]) eq {#w-i+1..#w} then
+        elif Seqset(w[1..i]) eq {Maximum(w)-i+1..Maximum(w)} then
             return i,-1;
         end if;
     end for;
@@ -64,22 +64,41 @@ function SeparableString(w)
     end if;
 end function;
 
-// function SeparableGraph(w);
-//     if #w eq 1 then
-//         // Return empty graph with a single
-//         G := Digraph<{@<[i,i], "0">@} | >
-//         return G, Vertices(G) ! <[i,i],"0">;
-//     else
-//         i, type := FindSeparableCut(w);
-//         if i eq #w then
-//             return Digraph<{@<[0],"x">@} | >;
-//         // Noninversion cut, add + to graph
-//         elif type eq 1 then
-//             G1, u := SeparableGraph(w[1..i]);
-//             G2, v := SeparableGraph(w[i+1..#w]);
-//             G := Union(G1,G2);
-//             AddVertex(~G, <[1,#w],"+">)
-//             w := Vertices(G) ! <[1,#w], "+">;
-//             AddEdge(~G, w, u);
-//             AddEdge(~G, w, v);
-//             return G, w;
+// Recursion function for determining chain of longest elements
+procedure SeparableChainRec(~chain, ~sep, w)
+    if #w gt 1 then
+        i, type := FindSeparableCut(w);
+        // No separable cut
+        if i eq #w then
+            sep := false;
+        // Noninversion .. split and recurse
+        elif type eq 1 then
+            SeparableChainRec(~chain,~sep,w[1..i]);
+            SeparableChainRec(~chain,~sep,w[i+1..#w]);
+        // Inversion .. apply long element and then
+        else
+            // Add elements to first possible place
+            elts := {x : x in {Minimum(w)..Maximum(w)-1}};
+            disjoint := [j : j in [1..#chain] | elts notsubset chain[j]];
+            if #disjoint eq 0 then
+                chain cat:= [elts];
+            else
+                chain[Min(disjoint)] join:= elts;
+            end if; 
+            Reverse(~w);
+            SeparableChainRec(~chain,~sep,w[1..#w-i]);
+            SeparableChainRec(~chain,~sep,w[#w-i+1..#w]);
+        end if;
+    end if;
+end procedure;
+
+function SeparableChain(w)
+    chain := [];
+    sep := true;
+    SeparableChainRec(~chain,~sep,w);
+    if sep eq true then
+        return chain;
+    else
+        return [];
+    end if;
+end function;
