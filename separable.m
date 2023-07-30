@@ -1,22 +1,8 @@
-// Decompose a separable permutation
+// SEPARABLE PERMUTATIONS
 
 // Check whether w is a permutation
 function IsPermutation(w)
     return Seqset(w) eq {1..#w};
-end function;
-
-// Find all inversion and noninversion cuts
-function FindSeparableCuts(w)
-    // Require w to be a permutation
-    cuts := [0 : x in [1..#w-1]];
-    for i in [1..#cuts] do
-        // noninversion cut
-        if Seqset(w[1..i]) eq {1..i} then cuts[i] := 1;
-        // inversion cut
-        elif Seqset(w[1..i]) eq {#w-i+1..#w} then cuts[i] := -1;
-        end if;
-    end for;
-    return cuts;
 end function;
 
 // Find the first inversion or noninversion cut
@@ -92,13 +78,42 @@ procedure SeparableChainRec(~chain, ~sep, w)
     end if;
 end procedure;
 
+// Given a permutation w, return the chain of longest elements comprising it.
 function SeparableChain(w)
     chain := [];
     sep := true;
     SeparableChainRec(~chain,~sep,w);
     if sep eq true then
-        return chain;
+        return chain, true;
     else
-        return [];
+        return chain, false;
     end if;
+end function;
+
+// ARBITRARY COXETER GROUPS
+
+// Given a Coxeter group W and a parabolic subset J, return the longest element
+function ParabolicLongestElement(W, J)
+    WJ := StandardParabolicSubgroup(W, J);
+    Jlist := Sort([j : j in J]);
+    // Calculate longest element, convert back to elements of W
+    return &*([W.0] cat [W.Jlist[x] : x in Eltseq(LongestElement(WJ))]);
+end function;
+
+// Given a Coxeter group W, return its subset of separable elements
+procedure SeparableElementsRec(~elts, W, w, J)
+    if #J eq 0 then
+        elts join:= {w};
+    end if;
+    for K in Subsets(J) diff {J} do
+        SeparableElementsRec(~elts, W, w*ParabolicLongestElement(W, K), K);
+    end for;
+end procedure;
+
+function SeparableElements(W)
+    elts := {};
+    for J in Subsets({1..#Generators(W)}) do
+        SeparableElementsRec(~elts, W, ParabolicLongestElement(W,J), J);
+    end for;
+    return elts;
 end function;
