@@ -113,7 +113,9 @@ end procedure;
 function SeparableElements(W)
     elts := {};
     for J in Subsets({1..#Generators(W)}) do
-        SeparableElementsRec(~elts, W, ParabolicLongestElement(W,J), J);
+        if IsFinite(StandardParabolicSubgroup(W, J)) then
+            SeparableElementsRec(~elts, W, ParabolicLongestElement(W,J), J);
+        end if;
     end for;
     return elts;
 end function;
