@@ -7,12 +7,16 @@ S,SST,Create a SST with prescribed range,1,0,1,82,1,82,0,148,2,0,0,0,0,0,0,0,148
 S,SST,Create a SST with range = number of boxes,1,0,1,82,1,82,0,148,1,0,0,0,0,0,0,0,82,,SSTab,-38,-38,-38,-38
 S,SST,Create a SST with prescribed range given its skew shape,2,0,1,82,0,148,1,1,82,1,82,0,148,3,0,0,0,0,0,0,0,148,,0,0,82,,0,0,82,,SSTab,-38,-38,-38,-38
 S,SST,Create a SST given its skew shape with range = number of boxes,2,0,1,82,0,148,1,1,82,1,82,0,148,2,0,0,0,0,0,0,0,82,,0,0,82,,SSTab,-38,-38,-38,-38
+S,RowReadingTableau,Return the row reading tableau of given shape,1,0,1,82,0,148,1,0,0,0,0,0,0,0,82,,SSTab,-38,-38,-38,-38
+S,ColumnReadingTableau,Return the column reading tableau of given shape,1,0,1,82,0,148,1,0,0,0,0,0,0,0,82,,SSTab,-38,-38,-38,-38
 S,Rows,Return the rows of T,0,1,0,0,0,0,0,0,0,SSTab,,82,-38,-38,-38,-38
 S,Range,Return the range of T,0,1,0,0,0,0,0,0,0,SSTab,,148,-38,-38,-38,-38
 S,Shape,Return the shape of T,0,1,0,0,0,0,0,0,0,SSTab,,82,-38,-38,-38,-38
 S,SkewShape,Return the skew shape of T,0,1,0,0,0,0,0,0,0,SSTab,,82,-38,-38,-38,-38
-S,IsSkew,Return whether T is a skew tableau,0,1,0,0,0,0,0,0,0,SSTab,,37,-38,-38,-38,-38
+S,IsSkew,Return whether T is a skew tableau,0,1,0,0,0,0,0,0,0,SSTab,,36,-38,-38,-38,-38
 S,Weight,"Return the crystal weight, i.e. content of T",0,1,0,0,0,0,0,0,0,SSTab,,82,-38,-38,-38,-38
+S,IsStandard,Return whether the tableau is standard,0,1,0,0,0,0,0,0,0,SSTab,,36,-38,-38,-38,-38
+S,Conjugate,Return the conjugate of the tableau,0,1,0,0,0,0,0,0,0,SSTab,,SSTab,-38,-38,-38,-38
 S,eq,Check equality. Tableaux must have same range to be equal,0,2,0,0,0,0,0,0,0,SSTab,,0,0,SSTab,,36,-38,-38,-38,-38
 S,Print,Print T at level L,0,2,0,0,1,0,0,0,0,298,,0,0,SSTab,,-38,-38,-38,-38,-38
 S,+,Compose two skew tableaux by joining them together,0,2,0,0,0,0,0,0,0,SSTab,,0,0,SSTab,,SSTab,-38,-38,-38,-38
@@ -40,6 +44,7 @@ S,HighestWeightLoE,Check dominance order for tableaux weights,0,2,0,0,0,0,0,0,0,
 S,HighestWeightLoE,"Check dominance order for tableaux weights with respect to the interval [a,b]",0,4,0,0,0,0,0,0,0,148,,0,0,148,,0,0,SSTab,,0,0,SSTab,,36,-38,-38,-38,-38
 S,HighestWeightLoE,Check dominance order for tableaux weights with respect to a composition,1,2,1,82,0,148,3,0,0,0,0,0,0,0,82,,0,0,SSTab,,0,0,SSTab,,36,-38,-38,-38,-38
 S,HighestWeightLoE,Check dominance order for tableaux weights with respect to a composition,1,2,1,83,0,148,3,0,0,0,0,0,0,0,83,,0,0,SSTab,,0,0,SSTab,,36,-38,-38,-38,-38
+S,InverseRSK,Compute the permutation which gives this pair under RSK,0,2,0,0,0,0,0,0,0,SSTab,,0,0,SSTab,,82,-38,-38,-38,-38
 S,SetOfSYT,Create the set of standard tableaux with given shape,1,0,1,82,0,148,1,0,0,0,0,0,0,0,82,,83,-38,-38,-38,-38
 S,SetOfSSYT,Create the set of semistandard tableaux with given shape and range,1,0,1,82,0,148,2,0,0,0,0,0,0,0,148,,0,0,82,,83,-38,-38,-38,-38
 S,SetOfSSYT,Create the set of semistandard tableaux with given shape and content,2,0,1,82,0,148,1,1,82,0,148,2,0,0,0,0,0,0,0,82,,0,0,82,,83,-38,-38,-38,-38

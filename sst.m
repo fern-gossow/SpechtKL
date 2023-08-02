@@ -63,6 +63,21 @@ intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]]) -> SS
     return SST(T, Weight(T));
 end intrinsic;
 
+// CREATION OF CERTAIN TABLEAUX
+
+intrinsic RowReadingTableau(sh::SeqEnum[RngIntElt]) -> SSTab
+{Return the row reading tableau of given shape}
+    require IsPartition(sh): "Shape must be a partition";
+    elts := &cat[[[&+sh[1..x]+1..&+sh[1..x+1]]] : x in [0 .. #sh-1]];
+    return SST(elts);
+end intrinsic;
+
+intrinsic ColumnReadingTableau(sh::SeqEnum[RngIntElt]) -> SSTab
+{Return the column reading tableau of given shape}
+    require IsPartition(sh): "Shape must be a partition";
+    return Conjugate(RowReadingTableau(ConjugatePartition(sh)));
+end intrinsic;
+
 // BASIC ATTRIBUTES
 
 intrinsic Rows(T::SSTab) -> SeqEnum[SeqEnum[RngIntElt]]
@@ -85,7 +100,7 @@ intrinsic SkewShape(T::SSTab) -> SeqEnum[RngIntElt]
     return SkewShape(T`Tab);
 end intrinsic;
 
-intrinsic IsSkew(T::SSTab) -> Bool
+intrinsic IsSkew(T::SSTab) -> BoolElt
 {Return whether T is a skew tableau}
     return IsSkew(T`Tab);
 end intrinsic;
@@ -93,6 +108,17 @@ end intrinsic;
 intrinsic Weight(T::SSTab) -> SeqEnum[RngIntElt]
 {Return the crystal weight, i.e. content of T}
     return Content(T`Tab) cat [0 : x in [1..T`Range-#Content(T`Tab)]];
+end intrinsic;
+
+intrinsic IsStandard(T::SSTab) -> BoolElt
+{Return whether the tableau is standard}
+    return IsStandard(T`Tab) and not IsSkew(T`Tab);
+end intrinsic;
+
+intrinsic Conjugate(T::SSTab) -> SSTab
+{Return the conjugate of the tableau}
+    require IsStandard(T`Tab): "Tableau must be standard";
+    return SST(Conjugate(T`Tab), T`Range);
 end intrinsic;
 
 intrinsic 'eq'(R::SSTab, T::SSTab) -> BoolElt
@@ -347,6 +373,14 @@ intrinsic HighestWeightLoE(R::SSTab, T::SSTab, parabolic::SetEnum[RngIntElt]) ->
     hwR := HighestWeight(R, parabolic);
     hwT := HighestWeight(T, parabolic);
     return &and[PartitionDominanceLoE(hwR[i], hwT[i]) : i in [1..#hwR]];
+end intrinsic;
+
+// MISC FUNCTIONS
+
+intrinsic InverseRSK(P::SSTab, Q::SSTab) -> SeqEnum[RngIntElt]
+{Compute the permutation which gives this pair under RSK}
+    require IsStandard(P) and IsStandard(Q): "Tableaux must be standard";
+    return Eltseq(InverseRSKCorrespondenceSingleWord(P`Tab, Q`Tab));
 end intrinsic;
 
 // CLASSES OF TABLEAUX

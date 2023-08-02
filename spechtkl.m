@@ -77,3 +77,4 @@ intrinsic KLRepresentation(elts::SeqEnum[GrpFPCoxElt]) -> SeqEnum[AlgMatElt]
     W := Parent(elts[1]);
     return Representation(GModule(W, KLRepresentationMatrices(elts)));
 end intrinsic;
+
