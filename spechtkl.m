@@ -72,20 +72,29 @@ intrinsic KLRepresentationMatrices(elts::SeqEnum[GrpFPCoxElt]) -> SeqEnum[AlgMat
     return S;
 end intrinsic;
 
-intrinsic KLRepresentation(elts::SeqEnum[GrpFPCoxElt]) -> SeqEnum[AlgMatElt]
+intrinsic KLRepresentation(elts::SeqEnum[GrpFPCoxElt]) -> Map
 {Representation given by the KL basis}
     W := Parent(elts[1]);
     return Representation(GModule(W, KLRepresentationMatrices(elts)));
 end intrinsic;
 
-intrinsic TableauxToCoxeter(tabs::SeqEnum[SSTab]) -> SeqEnum[GrpFPCoxELt]
+intrinsic TableauxToCoxeter(tabs::SeqEnum[SSTab]) -> SeqEnum[GrpFPCoxELt], GrpPerm, GrpFPCox, Map
 {Turn a sequence of tableaux into a sequence of Coxeter elements with a given Q}
     n := &+Weight(tabs[1]);
     sh := Shape(tabs[1]);
     require &and[Shape(T) eq sh : T in tabs]: "All tableaux must be the same shape";
     require &and[IsStandard(T) : T in tabs]: "All tableaux must be standard and nonskew";
+    // Create the groups and morphism
     S, W, h := SymmetricGroupData(n);
+    // This assumes w = InverseRSK(T, Q) with Q the column-reading word
     perms := [&cat[Reverse(x) : x in Rows(Conjugate(T))] : T in tabs];
     elts := [h(S ! w) : w in perms];
     return elts, S, W, h;
+end intrinsic;
+
+intrinsic SpechtModule(sh::SeqEnum[RngIntElt]) -> Map, SeqEnum[SSTab], GrpPerm, GrpFPCox, Map
+{Given a shape, return the Specht module with KL basis}
+    tabs := [T : T in SetOfSYT(sh)];
+    elts, S, W, h := TableauxToCoxeter(tabs);
+    return KLRepresentation(elts), tabs, S, W, h;
 end intrinsic;
