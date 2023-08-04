@@ -111,8 +111,8 @@ intrinsic Weight(T::SSTab) -> SeqEnum[RngIntElt]
 end intrinsic;
 
 intrinsic IsStandard(T::SSTab) -> BoolElt
-{Return whether the tableau is standard}
-    return IsStandard(T`Tab) and not IsSkew(T`Tab);
+{Return whether the tableau is standard, nonskew, and has the correct weight}
+    return IsStandard(T`Tab) and not IsSkew(T`Tab) and T`Range eq &+Shape(T`Tab);
 end intrinsic;
 
 intrinsic Conjugate(T::SSTab) -> SSTab

@@ -78,3 +78,14 @@ intrinsic KLRepresentation(elts::SeqEnum[GrpFPCoxElt]) -> SeqEnum[AlgMatElt]
     return Representation(GModule(W, KLRepresentationMatrices(elts)));
 end intrinsic;
 
+intrinsic TableauxToCoxeter(tabs::SeqEnum[SSTab]) -> SeqEnum[GrpFPCoxELt]
+{Turn a sequence of tableaux into a sequence of Coxeter elements with a given Q}
+    n := &+Weight(tabs[1]);
+    sh := Shape(tabs[1]);
+    require &and[Shape(T) eq sh : T in tabs]: "All tableaux must be the same shape";
+    require &and[IsStandard(T) : T in tabs]: "All tableaux must be standard and nonskew";
+    S, W, h := SymmetricGroupData(n);
+    perms := [&cat[Reverse(x) : x in Rows(Conjugate(T))] : T in tabs];
+    elts := [h(S ! w) : w in perms];
+    return elts, S, W, h;
+end intrinsic;
