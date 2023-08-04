@@ -2,18 +2,29 @@
 
 // Requires sst.m
 
-intrinsic SymmetricGroupData(n::RngIntElt) -> GrpPerm, GrpFPCox, Map
-{Return the symmetric group, it's Coxeter presentation, and a map between them}
+intrinsic SymmetricGroupCoxeter(n::RngIntElt) -> GrpFPCox
+{Return the Coxeter group of type A(n-1), i.e. the symmetric group}
     require n ge 2: "Size must be at least 2";
-    S := SymmetricGroup(n);
     W := CoxeterGroup(GrpFPCox, "A" cat IntegerToString(n-1));
-    if n eq 2 then
-        k := hom<S -> W | [ W.1 ] >;
-    else
-        k := hom<S -> W | [Inverse(CoxeterElement(W)), W.1]>;
-    end if;
-    h := hom<S -> W | x :-> Inverse(k(x))>;
-    return S, W, h;
+    return W;
+end intrinsic;
+
+intrinsic PermutationToCoxeter(perm::SeqEnum[RngIntElt], W::GrpFPCox) -> GrpFPCoxElt
+{Rewrite a permutation (in sequence form) to a Coxeter element}
+    require #perm eq #Generators(W)+1: "Size must equal rank of W+1";
+    require Sort(perm) eq [1..#perm]: "Must be a permutation";
+    prm := perm;
+    elt := W.0;
+    while not prm eq [1..#perm] do
+        i := Minimum([j : j in [1..#prm-1] | prm[j] gt prm[j+1]]);
+        // Swap prm[i] and prm[i+1]
+        k := prm[i];
+        prm[i] := prm[i+1];
+        prm[i+1] := k;
+        // Multiply the elt by W.i on the left
+        elt := W.i*elt;
+    end while;
+    return elt;
 end intrinsic;
 
 intrinsic MuCoefficient(v::GrpFPCoxElt, w::GrpFPCoxElt) -> RngIntElt
@@ -78,23 +89,28 @@ intrinsic KLRepresentation(elts::SeqEnum[GrpFPCoxElt]) -> Map
     return Representation(GModule(W, KLRepresentationMatrices(elts)));
 end intrinsic;
 
-intrinsic TableauxToCoxeter(tabs::SeqEnum[SSTab]) -> SeqEnum[GrpFPCoxELt], GrpPerm, GrpFPCox, Map
+intrinsic TableauxToCoxeter(tabs::SeqEnum[SSTab]) -> SeqEnum[GrpFPCoxElt]
 {Turn a sequence of tableaux into a sequence of Coxeter elements with a given Q}
     n := &+Weight(tabs[1]);
     sh := Shape(tabs[1]);
     require &and[Shape(T) eq sh : T in tabs]: "All tableaux must be the same shape";
     require &and[IsStandard(T) : T in tabs]: "All tableaux must be standard and nonskew";
-    // Create the groups and morphism
-    S, W, h := SymmetricGroupData(n);
+    // Create the parent group
+    W := SymmetricGroupCoxeter(n);
     // This assumes w = InverseRSK(T, Q) with Q the column-reading word
     perms := [&cat[Reverse(x) : x in Rows(Conjugate(T))] : T in tabs];
-    elts := [h(S ! w) : w in perms];
-    return elts, S, W, h;
+    elts := [PermutationToCoxeter(w, W) : w in perms];
+    return elts;
 end intrinsic;
 
-intrinsic SpechtModule(sh::SeqEnum[RngIntElt]) -> Map, SeqEnum[SSTab], GrpPerm, GrpFPCox, Map
+intrinsic KLRepresentation(tabs::SeqEnum[SSTab]) -> Map
+{Representation given by the KL basis on a sequence of tableaux}
+    elts := TableauxToCoxeter(tabs);
+    return KLRepresentation(elts);
+end intrinsic;
+
+intrinsic SpechtModule(sh::SeqEnum[RngIntElt]) -> Map, SeqEnum[SSTab]
 {Given a shape, return the Specht module with KL basis}
     tabs := [T : T in SetOfSYT(sh)];
-    elts, S, W, h := TableauxToCoxeter(tabs);
-    return KLRepresentation(elts), tabs, S, W, h;
+    return KLRepresentation(tabs), tabs;
 end intrinsic;
