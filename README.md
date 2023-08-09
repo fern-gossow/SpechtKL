@@ -16,7 +16,9 @@ The most important examples are when $w$ is the longest element of a parabolic s
 The `package` folder contains a working MAGMA package with the following files:
 - `spec` which is the file which tells MAGMA to install the files inside `SpechtKL`.
 - `sst.m` defines the new type SSTableau, which works very similar to the regular `Tableau`, which includes as an attribute the maximum value of the tableau. This is required when defining the evacuation operation.
-- `spechtkl.m` allows one to convert tableaux to Coxeter elements, calculate mu coefficients and hence determine the symmetric group representation with a given basis of standard tableaux. Everything is assumed to be specialised to $q=1$.
+- `spechtkl.m` allows one to convert tableaux to Coxeter elements, calculate mu coefficients and hence determine the symmetric group representation with a given basis of standard tableaux. All representations are assumed to be specialised to $q=1$.
+
+The `other` folder will contain currently in-development tools and MAGMA code for related computations.
 
 ## Installation
 
