@@ -111,7 +111,7 @@ end intrinsic;
 
 intrinsic IsStandard(T::SSTableau) -> BoolElt
 {Return whether the tableau is standard, nonskew, and has the correct weight}
-    return Weight(T) eq [1 : x in [1..T`Range]] and not IsSkew(T`Tab);
+    return T`Range gt 0 and Weight(T) eq [1 : x in [1..T`Range]] and not IsSkew(T`Tab);
 end intrinsic;
 
 intrinsic Conjugate(T::SSTableau) -> SSTableau
@@ -200,7 +200,7 @@ intrinsic Rectify(T::SSTableau) -> SSTableau, SeqEnum[RngIntElt], SeqEnum[RngInt
 end intrinsic;
 
 intrinsic InverseRectify(T::SSTableau, rows::SeqEnum[RngIntElt], cols::SeqEnum[RngIntElt]) -> SSTableau
-{Unrectify T along a path}
+{Unrectify T along a given path}
     require #rows eq #cols: "Length of rows and columns must be the same";
     R := T;
     for j in [1..#rows] do

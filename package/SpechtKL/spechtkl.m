@@ -89,7 +89,7 @@ intrinsic KLRepresentation(elts::SeqEnum[GrpFPCoxElt]) -> Map
     return Representation(GModule(W, KLRepresentationMatrices(elts)));
 end intrinsic;
 
-intrinsic TableauxToCoxeter(tabs::SeqEnum[SSTab]) -> SeqEnum[GrpFPCoxElt]
+intrinsic TableauxToCoxeter(tabs::SeqEnum[SSTableau]) -> SeqEnum[GrpFPCoxElt]
 {Turn a sequence of tableaux into a sequence of Coxeter elements with a given Q}
     n := &+Weight(tabs[1]);
     sh := Shape(tabs[1]);
@@ -103,13 +103,13 @@ intrinsic TableauxToCoxeter(tabs::SeqEnum[SSTab]) -> SeqEnum[GrpFPCoxElt]
     return elts;
 end intrinsic;
 
-intrinsic KLRepresentation(tabs::SeqEnum[SSTab]) -> Map
+intrinsic KLRepresentation(tabs::SeqEnum[SSTableau]) -> Map
 {Representation given by the KL basis on a sequence of tableaux}
     elts := TableauxToCoxeter(tabs);
     return KLRepresentation(elts);
 end intrinsic;
 
-intrinsic SpechtModule(sh::SeqEnum[RngIntElt]) -> Map, SeqEnum[SSTab]
+intrinsic SpechtModule(sh::SeqEnum[RngIntElt]) -> Map, SeqEnum[SSTableau]
 {Given a shape, return the Specht module with KL basis}
     tabs := [T : T in SetOfSYT(sh)];
     return KLRepresentation(tabs), tabs;
