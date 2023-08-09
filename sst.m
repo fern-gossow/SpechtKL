@@ -1,6 +1,4 @@
-// Package for the type SSYT including cactus actions etc.
-
-// Attach("C:/Users/**/Coding/Github/SpechtKL/sst.m");
+// Package for the type SSYT including cactus actions and dual equivalence etc.
 
 // INTERVALS AND PARABOLICS HELPERS
 
@@ -19,45 +17,45 @@ end function;
 
 // SEMISTANDARD TABLEAUX TYPE
 
-declare type SSTab;
+declare type SSTableau;
 
-declare attributes SSTab: Tab, Range;
+declare attributes SSTableau: Tab, Range;
 
 // CREATION
 
-intrinsic SST(T::Tbl, n::RngIntElt) -> SSTab
+intrinsic SST(T::Tbl, n::RngIntElt) -> SSTableau
 {Create a semistandard tableau with designated range}
     require Parent(T) eq TableauIntegerMonoid(): "Tableau must be over the positive integers";
     elts := &cat(Eltseq(T));
     require Max(elts cat [0]) le n: "Range must be more than maximum value";
-    X := New(SSTab);
+    X := New(SSTableau);
     X`Tab := T;
     X`Range := n;
     return X;
 end intrinsic;
 
-intrinsic SST(T::Tbl) -> SSTab
+intrinsic SST(T::Tbl) -> SSTableau
 {Create a semistandard tableau with range = number of boxes}
     return SST(T, Weight(T));
 end intrinsic;
 
-intrinsic SST(elts::SeqEnum[SeqEnum[RngIntElt]], n::RngIntElt) -> SSTab
+intrinsic SST(elts::SeqEnum[SeqEnum[RngIntElt]], n::RngIntElt) -> SSTableau
 {Create a SST with prescribed range}
     return SST(Tableau(elts), n);
 end intrinsic;
 
-intrinsic SST(elts::SeqEnum[SeqEnum[RngIntElt]]) -> SSTab
+intrinsic SST(elts::SeqEnum[SeqEnum[RngIntElt]]) -> SSTableau
 {Create a SST with range = number of boxes}
     T := Tableau(elts);
     return SST(T, Weight(T));
 end intrinsic;
 
-intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]], n::RngIntElt) -> SSTab
+intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]], n::RngIntElt) -> SSTableau
 {Create a SST with prescribed range given its skew shape}
     return SST(Tableau(skew, elts), n);
 end intrinsic;
 
-intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]]) -> SSTab
+intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]]) -> SSTableau
 {Create a SST given its skew shape with range = number of boxes}
     T := Tableau(skew, elts);
     return SST(T, Weight(T));
@@ -65,14 +63,14 @@ end intrinsic;
 
 // CREATION OF CERTAIN TABLEAUX
 
-intrinsic RowReadingTableau(sh::SeqEnum[RngIntElt]) -> SSTab
+intrinsic RowReadingTableau(sh::SeqEnum[RngIntElt]) -> SSTableau
 {Return the row reading tableau of given shape}
     require IsPartition(sh): "Shape must be a partition";
     elts := &cat[[[&+sh[1..x]+1..&+sh[1..x+1]]] : x in [0 .. #sh-1]];
     return SST(elts);
 end intrinsic;
 
-intrinsic ColumnReadingTableau(sh::SeqEnum[RngIntElt]) -> SSTab
+intrinsic ColumnReadingTableau(sh::SeqEnum[RngIntElt]) -> SSTableau
 {Return the column reading tableau of given shape}
     require IsPartition(sh): "Shape must be a partition";
     return Conjugate(RowReadingTableau(ConjugatePartition(sh)));
@@ -80,53 +78,53 @@ end intrinsic;
 
 // BASIC ATTRIBUTES
 
-intrinsic Rows(T::SSTab) -> SeqEnum[SeqEnum[RngIntElt]]
+intrinsic Rows(T::SSTableau) -> SeqEnum[SeqEnum[RngIntElt]]
 {Return the rows of T}
     return [Eltseq(x) : x in Rows(T`Tab)];
 end intrinsic;
 
-intrinsic Range(T::SSTab) -> RngIntElt
+intrinsic Range(T::SSTableau) -> RngIntElt
 {Return the range of T}
     return T`Range;
 end intrinsic;
 
-intrinsic Shape(T::SSTab) -> SeqEnum[RngIntElt]
+intrinsic Shape(T::SSTableau) -> SeqEnum[RngIntElt]
 {Return the shape of T}
     return Shape(T`Tab);
 end intrinsic;
 
-intrinsic SkewShape(T::SSTab) -> SeqEnum[RngIntElt]
+intrinsic SkewShape(T::SSTableau) -> SeqEnum[RngIntElt]
 {Return the skew shape of T}
     return SkewShape(T`Tab);
 end intrinsic;
 
-intrinsic IsSkew(T::SSTab) -> BoolElt
+intrinsic IsSkew(T::SSTableau) -> BoolElt
 {Return whether T is a skew tableau}
     return IsSkew(T`Tab);
 end intrinsic;
 
-intrinsic Weight(T::SSTab) -> SeqEnum[RngIntElt]
+intrinsic Weight(T::SSTableau) -> SeqEnum[RngIntElt]
 {Return the crystal weight, i.e. content of T}
     return Content(T`Tab) cat [0 : x in [1..T`Range-#Content(T`Tab)]];
 end intrinsic;
 
-intrinsic IsStandard(T::SSTab) -> BoolElt
+intrinsic IsStandard(T::SSTableau) -> BoolElt
 {Return whether the tableau is standard, nonskew, and has the correct weight}
     return IsStandard(T`Tab) and not IsSkew(T`Tab) and T`Range eq &+Shape(T`Tab);
 end intrinsic;
 
-intrinsic Conjugate(T::SSTab) -> SSTab
+intrinsic Conjugate(T::SSTableau) -> SSTableau
 {Return the conjugate of the tableau}
     require IsStandard(T`Tab): "Tableau must be standard";
     return SST(Conjugate(T`Tab), T`Range);
 end intrinsic;
 
-intrinsic 'eq'(R::SSTab, T::SSTab) -> BoolElt
+intrinsic 'eq'(R::SSTableau, T::SSTableau) -> BoolElt
 {Check equality. Tableaux must have same range to be equal}
     return R`Tab eq T`Tab and R`Range eq T`Range;
 end intrinsic;
 
-intrinsic Print(T::SSTab, L::MonStgElt)
+intrinsic Print(T::SSTableau, L::MonStgElt)
 {Print T at level L}
     rows := Rows(T);
     // Create a string which prints the elements of the tableau"
@@ -149,7 +147,7 @@ intrinsic Print(T::SSTab, L::MonStgElt)
     end if;
 end intrinsic;
 
-intrinsic '+'(P::SSTab, Q::SSTab) -> SSTab
+intrinsic '+'(P::SSTableau, Q::SSTableau) -> SSTableau
 {Compose two skew tableaux by joining them together}
     require [x : x in SkewShape(Q`Tab) | x gt 0] eq Shape(P`Tab): "Skew shapes must match";
     rowsP := Eltseq(P`Tab);
@@ -160,7 +158,7 @@ end intrinsic;
 
 // ACTIONS
 
-intrinsic JeuDeTaquin(T::SSTab, i::RngIntElt, j::RngIntElt) -> SSTab, RngIntElt, RngIntElt
+intrinsic JeuDeTaquin(T::SSTableau, i::RngIntElt, j::RngIntElt) -> SSTableau, RngIntElt, RngIntElt
 {Perform jdt, and record the vacated cell}
     shT := Shape(T`Tab);
     R := JeuDeTaquin(T`Tab, i, j);
@@ -170,7 +168,7 @@ intrinsic JeuDeTaquin(T::SSTab, i::RngIntElt, j::RngIntElt) -> SSTab, RngIntElt,
     return SST(R,T`Range), row, shT[row];
 end intrinsic;
 
-intrinsic InverseJeuDeTaquin(T::SSTab, i::RngIntElt, j::RngIntElt) -> SSTab, RngIntElt, RngIntElt
+intrinsic InverseJeuDeTaquin(T::SSTableau, i::RngIntElt, j::RngIntElt) -> SSTableau, RngIntElt, RngIntElt
 {Perform inverse jdt, and record the vacated cell}
     skT := SkewShape(T`Tab) cat [0];
     R := InverseJeuDeTaquin(T`Tab, i, j);
@@ -180,7 +178,7 @@ intrinsic InverseJeuDeTaquin(T::SSTab, i::RngIntElt, j::RngIntElt) -> SSTab, Rng
     return SST(R,T`Range), row, skR[row];
 end intrinsic;
 
-intrinsic Rectify(T::SSTab) -> SSTab, SeqEnum[RngIntElt], SeqEnum[RngIntElt]
+intrinsic Rectify(T::SSTableau) -> SSTableau, SeqEnum[RngIntElt], SeqEnum[RngIntElt]
 {Rectify T, and record the vacated rows and columns}
     R := T;
     vacrows := [];
@@ -196,7 +194,7 @@ intrinsic Rectify(T::SSTab) -> SSTab, SeqEnum[RngIntElt], SeqEnum[RngIntElt]
     return R, vacrows, vaccols;
 end intrinsic;
 
-intrinsic InverseRectify(T::SSTab, rows::SeqEnum[RngIntElt], cols::SeqEnum[RngIntElt]) -> SSTab
+intrinsic InverseRectify(T::SSTableau, rows::SeqEnum[RngIntElt], cols::SeqEnum[RngIntElt]) -> SSTableau
 {Unrectify T along a path}
     require #rows eq #cols: "Length of rows and columns must be the same";
     R := T;
@@ -206,7 +204,7 @@ intrinsic InverseRectify(T::SSTab, rows::SeqEnum[RngIntElt], cols::SeqEnum[RngIn
     return R;
 end intrinsic;
 
-intrinsic Evacuation(T::SSTab) -> SSTab
+intrinsic Evacuation(T::SSTableau) -> SSTableau
 {Perform usual evacuation for tableaux, and reversal for skew tableaux}
     if not IsSkew(T) then
         r := Shape(T)[1];
@@ -222,7 +220,7 @@ intrinsic Evacuation(T::SSTab) -> SSTab
     end if;
 end intrinsic;
 
-intrinsic Restrict(T::SSTab, a::RngIntElt, b::RngIntElt) -> SSTab
+intrinsic Restrict(T::SSTableau, a::RngIntElt, b::RngIntElt) -> SSTableau
 {Restrict T to the boxes a,..,b}
     require 1 le a and b le Range(T): "Values must be between 0 and the range of the tableau";
     rows := Rows(T);
@@ -234,7 +232,7 @@ intrinsic Restrict(T::SSTab, a::RngIntElt, b::RngIntElt) -> SSTab
     return SST(sk, rows, b-a+1);
 end intrinsic;
 
-intrinsic Restrict(T::SSTab, comp::SeqEnum[RngIntElt]) -> SeqEnum[SSTab]
+intrinsic Restrict(T::SSTableau, comp::SeqEnum[RngIntElt]) -> SeqEnum[SSTableau]
 {Decompose T into skew parts according to a composition}
     require &and[x ge 0 : x in comp]: "Composition must be nonnegative";
     require &+comp eq Range(T): "Sum of parts in composition must be range of tableau";
@@ -242,14 +240,14 @@ intrinsic Restrict(T::SSTab, comp::SeqEnum[RngIntElt]) -> SeqEnum[SSTab]
     return [Restrict(T, x[1], x[2]) : x in intervals];
 end intrinsic;
 
-intrinsic Restrict(T::SSTab, parabolic::SetEnum[RngIntElt]) -> SeqEnum[SSTab]
+intrinsic Restrict(T::SSTableau, parabolic::SetEnum[RngIntElt]) -> SeqEnum[SSTableau]
 {Decompose T into skew parts according to a subset of generators}
     require parabolic subset {1..T`Range}: "Generators must be between 1 and Range(T)-1";
     intervals := ParabolicToIntervals(parabolic, T`Range);
     return [Restrict(T, x[1], x[2]) : x in intervals];
 end intrinsic;
 
-intrinsic Evacuation(T::SSTab, a::RngIntElt, b::RngIntElt) -> SSTab
+intrinsic Evacuation(T::SSTableau, a::RngIntElt, b::RngIntElt) -> SSTableau
 {Act on T by the cactus involution corresponding to I=[a,b]}
     require 1 le a and a le b and b le Range(T): "Values must be between 1 and the range of the tableau";
     decomp := Restrict(T, [a-1, b-a+1, Range(T)-b]);
@@ -257,7 +255,7 @@ intrinsic Evacuation(T::SSTab, a::RngIntElt, b::RngIntElt) -> SSTab
     return decomp[1] + Evacuation(decomp[2]) + decomp[3];
 end intrinsic;
 
-intrinsic Evacuation(T::SSTab, comp::SeqEnum[RngIntElt]) -> SSTab
+intrinsic Evacuation(T::SSTableau, comp::SeqEnum[RngIntElt]) -> SSTableau
 {Act on T by the cactus involution corresponding to a composition}
     require &and[x ge 0 : x in comp]: "Composition must be nonnegative";
     require &+comp eq Range(T): "Sum of parts in composition must be range of tableau";
@@ -269,7 +267,7 @@ intrinsic Evacuation(T::SSTab, comp::SeqEnum[RngIntElt]) -> SSTab
     return R;
 end intrinsic;
 
-intrinsic Evacuation(T::SSTab, parabolic::SetEnum[RngIntElt]) -> SSTab
+intrinsic Evacuation(T::SSTableau, parabolic::SetEnum[RngIntElt]) -> SSTableau
 {Act on T by the cactus involution corresponding to a parabolic}
     require parabolic subset {1..T`Range}: "Generators must be between 1 and Range(T)-1";
     intervals := ParabolicToIntervals(parabolic, T`range);
@@ -280,13 +278,13 @@ intrinsic Evacuation(T::SSTab, parabolic::SetEnum[RngIntElt]) -> SSTab
     return R;
 end intrinsic;
 
-intrinsic Promotion(T::SSTab) -> SSTab
+intrinsic Promotion(T::SSTableau) -> SSTableau
 {Calculate the Scchützenberger promotion of T}
     require not IsSkew(T): "Promotion only applies to nonskew tableaux";
     return Evacuation(Evacuation(T, 1, Range(T)-1));
 end intrinsic;
 
-intrinsic NestedEvacuation(T::SSTab) -> SSTab
+intrinsic NestedEvacuation(T::SSTableau) -> SSTableau
 {Calculate the nested evacuation of T}
     require not IsSkew(T): "Nested evacuation only applies to nonskew tableaux";
     R := T;
@@ -298,13 +296,13 @@ end intrinsic;
 
 // CRYSTAL STATISTICS AND DUAL EQUIVALENCE
 
-intrinsic IsKnuthEquivalent(R::SSTab, T::SSTab) -> BoolElt
+intrinsic IsKnuthEquivalent(R::SSTableau, T::SSTableau) -> BoolElt
 {Determine whether two tableaux are Knuth equivalent, i.e. slides get from one to the other}
     require R`Range eq T`Range: "Tableaux must have the same range";
     return Rectify(R) eq Rectify(T);
 end intrinsic;
 
-intrinsic IsDualEquivalent(R::SSTab, T::SSTab) -> BoolElt
+intrinsic IsDualEquivalent(R::SSTableau, T::SSTableau) -> BoolElt
 {Determine whether two tableaux are dual equivalent, i.e. connected in their tableau crystal}
     require R`Range eq T`Range: "Tableaux must have the same range";
     if Shape(R`Tab) eq Shape(T`Tab) then
@@ -316,19 +314,19 @@ intrinsic IsDualEquivalent(R::SSTab, T::SSTab) -> BoolElt
     end if;
 end intrinsic;
 
-intrinsic HighestWeight(T::SSTab) -> SeqEnum[RngIntElt]
+intrinsic HighestWeight(T::SSTableau) -> SeqEnum[RngIntElt]
 {Return the highest weight of the crystal component connected to T}
     sh := Shape(Rectify(T));
     return sh cat [0 : x in [1..Range(T)-#sh]];
 end intrinsic;
 
-intrinsic HighestWeight(T::SSTab, a::RngIntElt, b::RngIntElt) -> SeqEnum[RngIntElt]
+intrinsic HighestWeight(T::SSTableau, a::RngIntElt, b::RngIntElt) -> SeqEnum[RngIntElt]
 {Return the highest weight of the component connected to T of the crystal restricted to [a,b]}
     require 1 le a and a le b and b le Range(T): "Values must be between 1 and the range of the tableau";
     return HighestWeight(Restrict(T,a,b));
 end intrinsic;
 
-intrinsic HighestWeight(T::SSTab, comp::SeqEnum[RngIntElt]) -> SeqEnum[RngIntElt]
+intrinsic HighestWeight(T::SSTableau, comp::SeqEnum[RngIntElt]) -> SeqEnum[RngIntElt]
 {Return the list of highest weights for connected components of T corresponding to a composition}
     require &and[x ge 0 : x in comp]: "Composition must be nonnegative";
     require &+comp eq Range(T): "Sum of parts in composition must be range of tableau";
@@ -336,7 +334,7 @@ intrinsic HighestWeight(T::SSTab, comp::SeqEnum[RngIntElt]) -> SeqEnum[RngIntElt
     return [HighestWeight(T,x[1],x[2]) : x in intervals];
 end intrinsic;
 
-intrinsic HighestWeight(T::SSTab, parabolic::SetEnum[RngIntElt]) -> SeqEnum[RngIntElt]
+intrinsic HighestWeight(T::SSTableau, parabolic::SetEnum[RngIntElt]) -> SeqEnum[RngIntElt]
 {Return the list of highest weights for connected components of T corresponding to a parabolic}
     require parabolic subset {1..T`Range}: "Generators must be between 1 and Range(T)-1";
     intervals := ParabolicToIntervals(parabolic, T`Range);
@@ -350,25 +348,25 @@ intrinsic PartitionDominanceLoE(p::SeqEnum[RngIntElt], q::SeqEnum[RngIntElt]) ->
     return &and([&+p[1..i] le &+q[1..i] : i in [1 .. #p]]);
 end intrinsic;
 
-intrinsic HighestWeightLoE(R::SSTab, T::SSTab) -> BoolElt
+intrinsic HighestWeightLoE(R::SSTableau, T::SSTableau) -> BoolElt
 {Check dominance order for tableaux weights}
     require R`Range eq T`Range: "Tableaux must have same range";
     return PartitionDominanceLoE(HighestWeight(R), HighestWeight(T));
 end intrinsic;
 
-intrinsic HighestWeightLoE(R::SSTab, T::SSTab, a::RngIntElt, b::RngIntElt) -> BoolElt
+intrinsic HighestWeightLoE(R::SSTableau, T::SSTableau, a::RngIntElt, b::RngIntElt) -> BoolElt
 {Check dominance order for tableaux weights with respect to the interval [a,b]}
     return PartitionDominanceLoE(HighestWeight(R, a, b), HighestWeight(T, a, b));
 end intrinsic;
 
-intrinsic HighestWeightLoE(R::SSTab, T::SSTab, comp::SeqEnum[RngIntElt]) -> BoolElt
+intrinsic HighestWeightLoE(R::SSTableau, T::SSTableau, comp::SeqEnum[RngIntElt]) -> BoolElt
 {Check dominance order for tableaux weights with respect to a composition}
     hwR := HighestWeight(R, comp);
     hwT := HighestWeight(T, comp);
     return &and[PartitionDominanceLoE(hwR[i], hwT[i]) : i in [1..#hwR]];
 end intrinsic;
 
-intrinsic HighestWeightLoE(R::SSTab, T::SSTab, parabolic::SetEnum[RngIntElt]) -> BoolElt
+intrinsic HighestWeightLoE(R::SSTableau, T::SSTableau, parabolic::SetEnum[RngIntElt]) -> BoolElt
 {Check dominance order for tableaux weights with respect to a composition}
     hwR := HighestWeight(R, parabolic);
     hwT := HighestWeight(T, parabolic);
@@ -377,7 +375,7 @@ end intrinsic;
 
 // MISC FUNCTIONS
 
-intrinsic InverseRSK(P::SSTab, Q::SSTab) -> SeqEnum[RngIntElt]
+intrinsic InverseRSK(P::SSTableau, Q::SSTableau) -> SeqEnum[RngIntElt]
 {Compute the permutation which gives this pair under RSK}
     require IsStandard(P) and IsStandard(Q): "Tableaux must be standard";
     return Eltseq(InverseRSKCorrespondenceSingleWord(P`Tab, Q`Tab));
@@ -385,19 +383,19 @@ end intrinsic;
 
 // CLASSES OF TABLEAUX
 
-intrinsic SetOfSYT(shape::SeqEnum[RngIntElt]) -> SetEnum[SSTab]
+intrinsic SetOfSYT(shape::SeqEnum[RngIntElt]) -> SetEnum[SSTableau]
 {Create the set of standard tableaux with given shape}
     return {SST(T, Weight(T)) : T in StandardTableaux(shape)};
 end intrinsic;
 
-intrinsic SetOfSSYT(shape::SeqEnum[RngIntElt], range::RngIntElt) -> SetEnum[SSTab]
+intrinsic SetOfSSYT(shape::SeqEnum[RngIntElt], range::RngIntElt) -> SetEnum[SSTableau]
 {Create the set of semistandard tableaux with given shape and range}
     require IsPartition(shape): "Shape must be a partition";
     require range ge #shape: "Range must be at least the number of rows";
     return {SST(T, range) : T in TableauxOfShape(shape, range)};
 end intrinsic;
 
-intrinsic SetOfSSYT(shape::SeqEnum[RngIntElt], content::SeqEnum[RngIntElt]) -> SetEnum[SSTab]
+intrinsic SetOfSSYT(shape::SeqEnum[RngIntElt], content::SeqEnum[RngIntElt]) -> SetEnum[SSTableau]
 {Create the set of semistandard tableaux with given shape and content}
     require IsPartition(shape): "Shape must be a partition";
     require #content ge #shape: "Number of labels must be at least the number of rows";
@@ -405,13 +403,13 @@ intrinsic SetOfSSYT(shape::SeqEnum[RngIntElt], content::SeqEnum[RngIntElt]) -> S
     return {SST(T, #content) : T in TableauxOnShapeWithContent(shape, content)};
 end intrinsic;
 
-intrinsic DualEquivalenceClass(T::SSTab) -> SetEnum[SSTab]
+intrinsic DualEquivalenceClass(T::SSTableau) -> SetEnum[SSTableau]
 {Return the set of tableaux dual equivalent to T}
     R, vacrow, vaccol := Rectify(T);
     return {InverseRectify(X, Reverse(vacrow), Reverse(vaccol)) : X in SetOfSSYT(Shape(R), Range(R))};
 end intrinsic;
 
-intrinsic DualEquivalenceClassStandard(T::SSTab) -> SetEnum[SSTab]
+intrinsic DualEquivalenceClassStandard(T::SSTableau) -> SetEnum[SSTableau]
 {Return the set of standard skew tableaux dual equivalent to T}
     R, vacrow, vaccol := Rectify(T);
     return {InverseRectify(X, Reverse(vacrow), Reverse(vaccol)) : X in SetOfSYT(Shape(R))};
