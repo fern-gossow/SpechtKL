@@ -61,7 +61,7 @@ intrinsic SST(skew::SeqEnum[RngIntElt], elts::SeqEnum[SeqEnum[RngIntElt]]) -> SS
     return SST(T, Weight(T));
 end intrinsic;
 
-// CREATION OF CERTAIN TABLEAUX
+// CREATION OF SPECIAL TABLEAUX
 
 intrinsic RowReadingTableau(sh::SeqEnum[RngIntElt]) -> SSTableau
 {Return the row reading tableau of given shape}
@@ -105,12 +105,13 @@ end intrinsic;
 
 intrinsic Weight(T::SSTableau) -> SeqEnum[RngIntElt]
 {Return the crystal weight, i.e. content of T}
-    return Content(T`Tab) cat [0 : x in [1..T`Range-#Content(T`Tab)]];
+    elts := &cat(Rows(T));
+    return [#[x : x in elts | x eq k] : k in [1..T`Range]];
 end intrinsic;
 
 intrinsic IsStandard(T::SSTableau) -> BoolElt
 {Return whether the tableau is standard, nonskew, and has the correct weight}
-    return IsStandard(T`Tab) and not IsSkew(T`Tab) and T`Range eq &+Shape(T`Tab);
+    return Weight(T) eq [1 : x in [1..T`Range]] and not IsSkew(T`Tab);
 end intrinsic;
 
 intrinsic Conjugate(T::SSTableau) -> SSTableau
@@ -153,7 +154,7 @@ intrinsic '+'(P::SSTableau, Q::SSTableau) -> SSTableau
     rowsP := Eltseq(P`Tab);
     rowsQ := [[x + P`Range : x in row] : row in Eltseq(Q`Tab)];
     elts := [rowsP[r] cat rowsQ[r] : r in [1..#rowsP]] cat rowsQ[#rowsP+1..#rowsQ];
-    return SST(SkewShape(P`Tab), elts, P`Range+Q`Range);
+    return SST(SkewShape(P`Tab), elts, P`Range + Q`Range);
 end intrinsic;
 
 // ACTIONS
