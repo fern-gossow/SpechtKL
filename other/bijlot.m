@@ -31,3 +31,38 @@ function HasLowerOrderBijection(M)
     // If no bijections are found
     return [], [];
 end function;
+
+// Recursive function to determine whether a permutation string is separable
+function IsSeparable(x)
+    if #x eq 1 then
+        return true;
+    end if;
+    for i in [1..#x-1] do
+        // Non-inversion cut
+        if SequenceToSet(x[1..i]) eq {1..i} then
+            return $$(x[1..i]) and $$([y-i : y in x[i+1..#x]]);
+        elif SequenceToSet(x[1..i]) eq {#x-i+1..#x} then
+            return $$([y-#x+i : y in x[1..i]]) and $$(x[i+1..#x]);
+        end if;
+    end for;
+    return false;
+end function;
+
+// Test whether only separable elements act by bijection up to l.o.t.
+procedure TestSeparableConjecture(sh)
+    <"Testing", sh>;
+    Sp := SpechtModule(sh);
+    W := Domain(Sp);
+    for x in Permutations({1..&+sh}) do
+        w := PermutationToCoxeter(x, W);
+        p := HasLowerOrderBijection(Sp(w));
+        LOB := (#p gt 0); // Has lower order bijection
+        sep := IsSeparable(x); // Is separable
+
+        if (not sep) and LOB then
+            <x, "LoB, but not separable">;
+        elif sep and (not LOB) then
+            <x, "Separble, but no LoB">;
+        end if;
+    end for;
+end procedure;
