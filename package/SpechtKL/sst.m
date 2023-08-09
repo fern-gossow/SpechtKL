@@ -1,4 +1,4 @@
-// Package for the type SSYT including cactus actions and dual equivalence etc.
+// Package for the type SSTableau (extending Tableau) which includes cactus actions and dual equivalence.
 
 // INTERVALS AND PARABOLICS HELPERS
 
@@ -110,7 +110,7 @@ intrinsic Weight(T::SSTableau) -> SeqEnum[RngIntElt]
 end intrinsic;
 
 intrinsic IsStandard(T::SSTableau) -> BoolElt
-{Return whether the tableau is standard, nonskew, and has the correct weight}
+{Return whether the tableau is standard, nonskew, and has the correct range}
     return T`Range gt 0 and Weight(T) eq [1 : x in [1..T`Range]] and not IsSkew(T`Tab);
 end intrinsic;
 
@@ -118,6 +118,11 @@ intrinsic Conjugate(T::SSTableau) -> SSTableau
 {Return the conjugate of the tableau}
     require IsStandard(T`Tab): "Tableau must be standard";
     return SST(Conjugate(T`Tab), T`Range);
+end intrinsic;
+
+intrinsic RowReadingWord(T::SSTableau) -> SeqEnum[RngIntElt]
+{Return the row-reading word of T, from bottom-to-top and left-to-right}
+    return &cat(Reverse(Rows(T)));
 end intrinsic;
 
 intrinsic 'eq'(R::SSTableau, T::SSTableau) -> BoolElt
