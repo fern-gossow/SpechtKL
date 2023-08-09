@@ -128,11 +128,15 @@ end intrinsic;
 intrinsic Print(T::SSTableau, L::MonStgElt)
 {Print T at level L}
     rows := Rows(T);
+    // Gap required between entries
+    n := 1 + #IntegerToString(T`Range);
     // Create a string which prints the elements of the tableau"
     tabstring := "";
     for r in [1..#SkewShape(T`Tab)] do
-        tabstring cat:= &cat([""] cat ["-" cat " " : x in [1..SkewShape(T`Tab)[r]]]);
-        tabstring cat:= &cat([""] cat [IntegerToString(i) cat " " : i in rows[r]]);
+        // Add "-" for any skew elements
+        tabstring cat:= &cat([""] cat ["-" cat &cat[" " : y in [1..n-1]] : x in [1..SkewShape(T`Tab)[r]]]);
+        // Add the tableau elements
+        tabstring cat:= &cat([""] cat [IntegerToString(i) cat &cat[" " : y in [1..n-#IntegerToString(i)]] : i in rows[r]]);
         tabstring := Substring(tabstring,1,#tabstring-1) cat "\n";
     end for;
     // If maximal, print the shape and range
@@ -150,7 +154,7 @@ end intrinsic;
 
 intrinsic '+'(P::SSTableau, Q::SSTableau) -> SSTableau
 {Compose two skew tableaux by joining them together}
-    require [x : x in SkewShape(Q`Tab) | x gt 0] eq Shape(P`Tab): "Skew shapes must match";
+    require [x : x in SkewShape(Q`Tab) | x gt 0] eq Shape(P`Tab): "Shapes must match for composition";
     rowsP := Eltseq(P`Tab);
     rowsQ := [[x + P`Range : x in row] : row in Eltseq(Q`Tab)];
     elts := [rowsP[r] cat rowsQ[r] : r in [1..#rowsP]] cat rowsQ[#rowsP+1..#rowsQ];
