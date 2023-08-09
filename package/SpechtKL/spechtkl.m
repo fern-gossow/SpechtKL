@@ -1,7 +1,5 @@
 // A package for computing the KL matrices specialised to v=q=1. 
 
-// Requires sst.m
-
 intrinsic SymmetricGroupCoxeter(n::RngIntElt) -> GrpFPCox
 {Return the Coxeter group of type A(n-1), i.e. the symmetric group}
     require n ge 2: "Size must be at least 2";
