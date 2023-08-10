@@ -2,25 +2,27 @@
 
 intrinsic SymmetricGroupCoxeter(n::RngIntElt) -> GrpFPCox
 {Return the Coxeter group of type A(n-1), i.e. the symmetric group}
-    require n ge 2: "Size must be at least 2";
-    W := CoxeterGroup(GrpFPCox, "A" cat IntegerToString(n-1));
-    return W;
+    require n ge 2: "Size must be at least 1";
+    return CoxeterGroup(GrpFPCox, "A" cat IntegerToString(n-1));
 end intrinsic;
 
 intrinsic PermutationToCoxeter(perm::SeqEnum[RngIntElt], W::GrpFPCox) -> GrpFPCoxElt
 {Rewrite a permutation (in sequence form) to a Coxeter element}
-    require #perm eq #Generators(W)+1: "Size must equal rank of W+1";
+    require CartanName(W) eq "A" cat IntegerToString(#perm-1): "Coxeter group must be of type A_{n-1}";
     require Sort(perm) eq [1..#perm]: "Must be a permutation";
     prm := perm;
     elt := W.0;
     while not prm eq [1..#perm] do
-        i := Minimum([j : j in [1..#prm-1] | prm[j] gt prm[j+1]]);
-        // Swap prm[i] and prm[i+1]
-        k := prm[i];
-        prm[i] := prm[i+1];
-        prm[i+1] := k;
-        // Multiply the elt by W.i on the left
-        elt := W.i*elt;
+        for i in [1..#perm-1] do
+            if prm[i] gt prm[i+1] then
+                // Swap prm[i] and prm[i+1]
+                k := prm[i];
+                prm[i] := prm[i+1];
+                prm[i+1] := k;
+                // Multiply the elt by W.i on the left
+                elt := W.i*elt;
+            end if;
+        end for;
     end while;
     return elt;
 end intrinsic;
