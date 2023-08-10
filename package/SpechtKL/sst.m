@@ -377,7 +377,7 @@ intrinsic HighestWeightLoE(R::SSTableau, T::SSTableau, comp::SeqEnum[RngIntElt])
 end intrinsic;
 
 intrinsic HighestWeightLoE(R::SSTableau, T::SSTableau, parabolic::SetEnum[RngIntElt]) -> BoolElt
-{Check dominance order for tableaux weights with respect to a composition}
+{Check dominance order for tableaux weights with respect to a parabolic}
     hwR := HighestWeight(R, parabolic);
     hwT := HighestWeight(T, parabolic);
     return &and[PartitionDominanceLoE(hwR[i], hwT[i]) : i in [1..#hwR]];
