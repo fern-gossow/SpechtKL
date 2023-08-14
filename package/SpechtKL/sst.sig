@@ -44,7 +44,7 @@ S,PartitionDominanceLoE,Determine dominance order on two partitions,2,0,1,82,0,1
 S,HighestWeightLoE,Check dominance order for tableaux weights,0,2,0,0,0,0,0,0,0,SSTableau,,0,0,SSTableau,,36,-38,-38,-38,-38
 S,HighestWeightLoE,"Check dominance order for tableaux weights with respect to the interval [a,b]",0,4,0,0,0,0,0,0,0,148,,0,0,148,,0,0,SSTableau,,0,0,SSTableau,,36,-38,-38,-38,-38
 S,HighestWeightLoE,Check dominance order for tableaux weights with respect to a composition,1,2,1,82,0,148,3,0,0,0,0,0,0,0,82,,0,0,SSTableau,,0,0,SSTableau,,36,-38,-38,-38,-38
-S,HighestWeightLoE,Check dominance order for tableaux weights with respect to a composition,1,2,1,83,0,148,3,0,0,0,0,0,0,0,83,,0,0,SSTableau,,0,0,SSTableau,,36,-38,-38,-38,-38
+S,HighestWeightLoE,Check dominance order for tableaux weights with respect to a parabolic,1,2,1,83,0,148,3,0,0,0,0,0,0,0,83,,0,0,SSTableau,,0,0,SSTableau,,36,-38,-38,-38,-38
 S,InverseRSK,Compute the permutation which gives this pair under RSK,0,2,0,0,0,0,0,0,0,SSTableau,,0,0,SSTableau,,82,-38,-38,-38,-38
 S,SetOfSYT,Create the set of standard tableaux with given shape,1,0,1,82,0,148,1,0,0,0,0,0,0,0,82,,83,-38,-38,-38,-38
 S,SetOfSSYT,Create the set of semistandard tableaux with given shape and range,1,0,1,82,0,148,2,0,0,0,0,0,0,0,148,,0,0,82,,83,-38,-38,-38,-38
