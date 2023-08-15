@@ -34,3 +34,37 @@ intrinsic SearchLowerOrderBijection(M::AlgMatElt) -> SeqEnum[RngIntElt], SeqEnum
     // If no permutation of the standard basis gives a bijection up to l.o.t.
     return [], [];
 end intrinsic;
+
+// SORT HELPERS
+
+// Assign a unique integer to each partition for the purposes of sorting
+function PartitionCompare(p, q)
+    assert IsPartition(p) and IsPartition(q);
+    assert #p eq #q;
+    for i in [1..#p] do
+        if p[i] ne q[i] then
+            return p[i] - q[i];
+        end if;
+    end for;
+    return 0;
+end function;
+
+intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau]) -> SeqEnum[SSTableau]
+{Sort tableaux by their highest weight}
+    return Sort(tabs, func< R,T | PartitionCompare(HighestWeight(R), HighestWeight(T)) >);
+end intrinsic;
+
+intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau], a::RngIntElt, b::RngIntElt) -> SeqEnum[SSTableau]
+{Sort tableaux by their highest weight with respect to the interval [a,b]}
+    return Sort(tabs, func< R,T | PartitionCompare(HighestWeight(R, a, b), HighestWeight(T, a, b))>);
+end intrinsic;
+
+intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau], comp::SeqEnum[RngIntElt]) -> SeqEnum[SSTableau]
+{Sort tableaux by their highest weight with respect to a composition}
+    return Sort(tabs, func< R,T | PartitionCompare(HighestWeight(R, comp), HighestWeight(T, comp))>);
+end intrinsic;
+
+intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau], parabolic::SetEnum[RngIntElt]) -> SeqEnum[SSTableau]
+{Sort tableaux by their highest weight with respect to a composition}
+    return Sort(tabs, func< R,T | PartitionCompare(HighestWeight(R, parabolic), HighestWeight(T, parabolic))>);
+end intrinsic;
