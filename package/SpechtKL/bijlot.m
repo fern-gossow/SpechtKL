@@ -1,5 +1,7 @@
 // Find and test bijections up to l.o.t.
 
+// BIJECTIONS UP TO LOWER-ORDER TERMS
+
 intrinsic LowerOrderBijection(M::AlgMatElt) -> SeqEnum[RngIntElt]
 {If M acts by a bijection up to l.o.t., return the permutation, else return []}
     require NumberOfRows(M) eq NumberOfColumns(M): "Matrix must be square";
@@ -35,7 +37,7 @@ intrinsic SearchLowerOrderBijection(M::AlgMatElt) -> SeqEnum[RngIntElt], SeqEnum
     return [], [];
 end intrinsic;
 
-// SORT HELPERS
+// SORTING TABLEAUX BY HIGHEST WEIGHT
 
 // Assign a unique integer to each partition for the purposes of sorting
 function PartitionCompare(p, q)
@@ -67,4 +69,55 @@ end intrinsic;
 intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau], parabolic::SetEnum[RngIntElt]) -> SeqEnum[SSTableau]
 {Sort tableaux by their highest weight with respect to a composition}
     return Sort(tabs, func< R,T | PartitionCompare(HighestWeight(R, parabolic), HighestWeight(T, parabolic))>);
+end intrinsic;
+
+// DECOMPOSING SEPARABLE PERMUTATIONS
+
+// Recursive function for computing the chain decomposition of the inverse of w
+function SeparableDecompositionRec(w)
+    if #w le 1 then
+        return true, [];
+    else
+        for i in [1..#w-1] do
+            // Non-inversion cut
+            if Sort(w[1..i]) eq [Min(w)..Min(w)+i-1] then
+                sep1, chain1 := $$(w[1..i]);
+                sep2, chain2 := $$(w[i+1..#w]);
+                if sep1 and sep2 then
+                    return true, chain1 cat chain2;
+                else
+                    return false, [];
+                end if;
+            // Inversion cut
+            elif Sort(w[1..i]) eq [Max(w)-i+1..Max(w)] then
+                sep1, chain1 := $$(Reverse(w)[1..#w-i]);
+                sep2, chain2 := $$(Reverse(w)[#w-i+1..#w]);
+                if sep1 and sep2 then
+                    return true, [[Min(w),Max(w)]] cat chain1 cat chain2;
+                else
+                    return false, [];
+                end if;
+            end if;
+        end for;
+        return false, [];
+    end if;
+end function;
+
+intrinsic IsSeparable(w::SeqEnum[RngIntElt]) -> BoolElt, SeqEnum[SeqEnum[RngIntElt]]
+{Determine whether w is separable, and if so, give the chain of longest elements (described by intervals) whose composition is w}
+    require Sort(w) eq [1..#w]: "w must be a permutation";
+    // Take the inverse and call the recursive function
+    return SeparableDecompositionRec([Index(w,i) : i in [1..#w]]);
+end intrinsic;
+
+intrinsic SeparableElementAction(T::SSTableau, w::SeqEnum[RngIntElt]) -> SSTableau
+{Act on a tableau T by the chain of evacuation elements corresponding to w}
+    require Sort(w) eq [1..Range(T)]: "w must be a permutation of [1..Range(T)]";
+    is_sep, chain := IsSeparable(w);
+    require is_sep: "w must be a separable permutation";
+    R := T;
+    for interval in Reverse(chain) do
+        R := Evacuation(R, interval[1], interval[2]);
+    end for;
+    return R;
 end intrinsic;

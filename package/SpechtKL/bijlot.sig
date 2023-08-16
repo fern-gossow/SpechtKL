@@ -6,3 +6,5 @@ S,SortByHighestWeight,Sort tableaux by their highest weight,1,0,1,82,0,SSTableau
 S,SortByHighestWeight,"Sort tableaux by their highest weight with respect to the interval [a,b]",1,0,1,82,0,SSTableau,3,0,0,0,0,0,0,0,148,,0,0,148,,0,0,82,,82,-38,-38,-38,-38
 S,SortByHighestWeight,Sort tableaux by their highest weight with respect to a composition,2,0,1,82,0,SSTableau,1,1,82,0,148,2,0,0,0,0,0,0,0,82,,0,0,82,,82,-38,-38,-38,-38
 S,SortByHighestWeight,Sort tableaux by their highest weight with respect to a composition,2,0,1,82,0,SSTableau,1,1,83,0,148,2,0,0,0,0,0,0,0,83,,0,0,82,,82,-38,-38,-38,-38
+S,IsSeparable,"Determine whether w is separable, and if so, give the chain of longest elements (described by intervals) whose composition is w",1,0,1,82,0,148,1,0,0,0,0,0,0,0,82,,36,82,-38,-38,-38
+S,SeparableElementAction,Act on a tableau T by the chain of evacuation elements corresponding to w,1,1,1,82,0,148,2,0,0,0,0,0,0,0,82,,0,0,SSTableau,,SSTableau,-38,-38,-38,-38
