@@ -71,6 +71,8 @@ intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau], parabolic::SetEnum[RngIn
     return Sort(tabs, func< R,T | PartitionCompare(HighestWeight(R, parabolic), HighestWeight(T, parabolic))>);
 end intrinsic;
 
+
+
 // DECOMPOSING SEPARABLE PERMUTATIONS
 
 // Recursive function for computing the chain decomposition of the inverse of w
@@ -103,11 +105,28 @@ function SeparableDecompositionRec(w)
     end if;
 end function;
 
+// Convert a nested set of intervals to a strictly descending chain of subsets
+function IntervalChainToSubsetChain(chain)
+    subsets := [];
+    for c in chain do
+        s := {c[1]..c[2]-1};
+        // Find the current subsets disjoint from c
+        disj := [i : i in [1..#subsets] | #(subsets[i] meet s) eq 0];
+        if #disj eq 0 then
+            subsets cat:= [s];
+        else
+            subsets[disj[1]] join:= s;
+        end if;
+    end for;
+    return subsets;
+end function;
+
 intrinsic IsSeparable(w::SeqEnum[RngIntElt]) -> BoolElt, SeqEnum[SeqEnum[RngIntElt]]
 {Determine whether w is separable, and if so, give the chain of longest elements (described by intervals) whose composition is w}
     require Sort(w) eq [1..#w]: "w must be a permutation";
     // Take the inverse and call the recursive function
-    return SeparableDecompositionRec([Index(w,i) : i in [1..#w]]);
+    is_sep, chain := SeparableDecompositionRec([Index(w,i) : i in [1..#w]]);
+    return is_sep, IntervalChainToSubsetChain(chain);
 end intrinsic;
 
 intrinsic SeparableElementAction(T::SSTableau, w::SeqEnum[RngIntElt]) -> SSTableau
@@ -121,3 +140,4 @@ intrinsic SeparableElementAction(T::SSTableau, w::SeqEnum[RngIntElt]) -> SSTable
     end for;
     return R;
 end intrinsic;
+
