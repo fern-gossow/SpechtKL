@@ -336,7 +336,7 @@ intrinsic HighestWeight(T::SSTableau, a::RngIntElt, b::RngIntElt) -> SeqEnum[Rng
     return HighestWeight(Restrict(T,a,b));
 end intrinsic;
 
-intrinsic HighestWeight(T::SSTableau, comp::SeqEnum[RngIntElt]) -> SeqEnum[RngIntElt]
+intrinsic HighestWeight(T::SSTableau, comp::SeqEnum[RngIntElt]) -> SeqEnum[SeqEnum[RngIntElt]]
 {Return the list of highest weights for connected components of T corresponding to a composition}
     require &and[x ge 0 : x in comp]: "Composition must be nonnegative";
     require &+comp eq Range(T): "Sum of parts in composition must be range of tableau";
@@ -344,7 +344,7 @@ intrinsic HighestWeight(T::SSTableau, comp::SeqEnum[RngIntElt]) -> SeqEnum[RngIn
     return [HighestWeight(T,x[1],x[2]) : x in intervals];
 end intrinsic;
 
-intrinsic HighestWeight(T::SSTableau, parabolic::SetEnum[RngIntElt]) -> SeqEnum[RngIntElt]
+intrinsic HighestWeight(T::SSTableau, parabolic::SetEnum[RngIntElt]) -> SeqEnum[SeqEnum[RngIntElt]]
 {Return the list of highest weights for connected components of T corresponding to a parabolic}
     require parabolic subset {1..T`Range}: "Generators must be between 1 and Range(T)-1";
     intervals := ParabolicToIntervals(parabolic, T`Range);

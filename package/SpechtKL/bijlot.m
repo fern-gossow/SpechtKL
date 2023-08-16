@@ -37,42 +37,6 @@ intrinsic SearchLowerOrderBijection(M::AlgMatElt) -> SeqEnum[RngIntElt], SeqEnum
     return [], [];
 end intrinsic;
 
-// SORTING TABLEAUX BY HIGHEST WEIGHT
-
-// Assign a unique integer to each partition for the purposes of sorting
-function PartitionCompare(p, q)
-    assert IsPartition(p) and IsPartition(q);
-    assert #p eq #q;
-    for i in [1..#p] do
-        if p[i] ne q[i] then
-            return p[i] - q[i];
-        end if;
-    end for;
-    return 0;
-end function;
-
-intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau]) -> SeqEnum[SSTableau]
-{Sort tableaux by their highest weight}
-    return Sort(tabs, func< R,T | PartitionCompare(HighestWeight(R), HighestWeight(T)) >);
-end intrinsic;
-
-intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau], a::RngIntElt, b::RngIntElt) -> SeqEnum[SSTableau]
-{Sort tableaux by their highest weight with respect to the interval [a,b]}
-    return Sort(tabs, func< R,T | PartitionCompare(HighestWeight(R, a, b), HighestWeight(T, a, b))>);
-end intrinsic;
-
-intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau], comp::SeqEnum[RngIntElt]) -> SeqEnum[SSTableau]
-{Sort tableaux by their highest weight with respect to a composition}
-    return Sort(tabs, func< R,T | PartitionCompare(HighestWeight(R, comp), HighestWeight(T, comp))>);
-end intrinsic;
-
-intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau], parabolic::SetEnum[RngIntElt]) -> SeqEnum[SSTableau]
-{Sort tableaux by their highest weight with respect to a composition}
-    return Sort(tabs, func< R,T | PartitionCompare(HighestWeight(R, parabolic), HighestWeight(T, parabolic))>);
-end intrinsic;
-
-
-
 // DECOMPOSING SEPARABLE PERMUTATIONS
 
 // Recursive function for computing the chain decomposition of the inverse of w
@@ -125,8 +89,7 @@ intrinsic IsSeparable(w::SeqEnum[RngIntElt]) -> BoolElt, SeqEnum[SeqEnum[RngIntE
 {Determine whether w is separable, and if so, give the chain of longest elements (described by intervals) whose composition is w}
     require Sort(w) eq [1..#w]: "w must be a permutation";
     // Take the inverse and call the recursive function
-    is_sep, chain := SeparableDecompositionRec([Index(w,i) : i in [1..#w]]);
-    return is_sep, IntervalChainToSubsetChain(chain);
+    return SeparableDecompositionRec([Index(w,i) : i in [1..#w]]);
 end intrinsic;
 
 intrinsic SeparableElementAction(T::SSTableau, w::SeqEnum[RngIntElt]) -> SSTableau
@@ -141,3 +104,56 @@ intrinsic SeparableElementAction(T::SSTableau, w::SeqEnum[RngIntElt]) -> SSTable
     return R;
 end intrinsic;
 
+// SORTING TABLEAUX BY HIGHEST WEIGHT
+
+// Convert boolean to integer for sorting
+SortHelper := function( x, y, comp )
+    is_le := 0;
+    is_ge := 0; 
+    if comp( x, y ) then is_le := 1; end if;
+    if comp( y, x ) then is_ge := 1; end if;
+    return is_ge - is_le;
+end function;
+
+intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau]) -> SeqEnum[SSTableau]
+{Sort tableaux by their highest weight}
+    return Sort(tabs, func< R,T | SortHelper(R,T,HighestWeightLoE)>);
+end intrinsic;
+
+intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau], a::RngIntElt, b::RngIntElt) -> SeqEnum[SSTableau]
+{Sort tableaux by their highest weight with respect to the interval [a,b]}
+    return Sort(tabs, func< R,T | SortHelper(R,T,func< r,t | HighestWeightLoE(r,t,a,b) >)>);
+end intrinsic;
+
+intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau], comp::SeqEnum[RngIntElt]) -> SeqEnum[SSTableau]
+{Sort tableaux by their highest weight with respect to a composition}
+    return Sort(tabs, func< R,T | SortHelper(R,T,func< r,t | HighestWeightLoE(r,t,comp) >)>);
+end intrinsic;
+
+intrinsic SortByHighestWeight(tabs::SeqEnum[SSTableau], parabolic::SetEnum[RngIntElt]) -> SeqEnum[SSTableau]
+{Sort tableaux by their highest weight with respect to a composition}
+    return Sort(tabs, func< R,T | SortHelper(R,T,func< r,t | HighestWeightLoE(r,t,parabolic) >)>);
+end intrinsic;
+
+intrinsic SeparableElementOrderLoE(R::SSTableau, T::SSTableau, w::SeqEnum[RngIntElt]) -> BoolElt
+{Given a separable permutation w, determine whether R is less than T in the Z-order induced by w}
+    require Range(R) eq Range(T): "Tableaux must have the same range";
+    require Sort(w) eq [1..Range(T)]: "w must be a permutation of [1..Range(T)]";
+    is_sep, chain := IsSeparable(w);
+    require is_sep: "Permutation must be separable";
+    subsets := IntervalChainToSubsetChain(chain);
+    for s in subsets do
+        hwR := HighestWeight(R,s);
+        hwT := HighestWeight(T,s);
+        if hwR ne hwT then
+            return &and[PartitionDominanceLoE(hwR[i], hwT[i]) : i in [1..#hwR]];
+        end if;
+    end for;
+    // All weights are equal
+    return true;
+end intrinsic;
+
+intrinsic SortBySeparableElement(tabs::SeqEnum[SSTableau], w::SeqEnum[RngIntElt]) -> SeqEnum[SSTableau]
+{Sort tableaux by their highest weight with respect to a composition}
+    return Sort(tabs, func< R,T | SortHelper(R,T,func< r,t | SeparableElementOrderLoE(r,t,w) >)>);
+end intrinsic;
