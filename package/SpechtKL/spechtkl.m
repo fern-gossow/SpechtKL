@@ -97,7 +97,7 @@ intrinsic TableauxToCoxeter(tabs::SeqEnum[SSTableau]) -> SeqEnum[GrpFPCoxElt]
     require &and[IsStandard(T) : T in tabs]: "All tableaux must be standard and nonskew";
     // Create the parent group
     W := SymmetricGroupCoxeter(n);
-    // This assumes w = InverseRSK(T, Q) with Q the column-reading word
+    // This assumes w = InverseRSK(T, Q) with Q the column-reading tableau
     perms := [&cat[Reverse(x) : x in Rows(Conjugate(T))] : T in tabs];
     elts := [PermutationToCoxeter(w, W) : w in perms];
     return elts;
